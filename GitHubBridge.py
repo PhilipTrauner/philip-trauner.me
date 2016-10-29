@@ -5,16 +5,27 @@ from socket import gaierror
 
 _get = get
 
+
+class MockedResponse:
+	def __init__(self):
+		pass
+
+	def json(self):
+		return []
+
+
 # If GitHub is offline or the network connection is cut
 def get(*args, **kwargs):
 	try:
 		response =  _get(*args, **kwargs)
 		if response.status_code == 200:
-			return response
+			return MockedResponse()
 		else:
 			return []
 	except (gaierror, IOError):
-		return []
+		return MockedResponse()
+
+
 
 
 class GitHub:
