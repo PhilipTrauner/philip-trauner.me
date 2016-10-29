@@ -34,11 +34,11 @@
 					{% for repo in repos %}
 					<li>
 						{% if repo.fork %}
-							<img class="forked" src="{{ static_url }}octicons/build/svg/repo-forked.svg">
+							<img class="forked" alt="Forked" src="{{ static_url }}octicons/build/svg/repo-forked.svg">
 						{% endif %}
 						<a href="{{ repo.url }}"><h2>{{ repo.name }}</h2></a>
 						<span class="stars">
-							<img src="{{ static_url }}octicons/build/svg/star.svg"><span class="star-count">{{ repo.stars }}</span>
+							<img src="{{ static_url }}octicons/build/svg/star.svg" alt="Star"><span class="star-count">{{ repo.stars }}</span>
 						</span>
 						<p>{{ repo.description }} </p>
 					</li>
@@ -49,7 +49,7 @@
 				{% for org in orgs %}
 					<li>
 						<a href="{{ org.url }}">
-						<h2>{{ org.name }}</h2><img src="{{ org.avatar }}" class="org"></a>
+						<h2>{{ org.name }}</h2><img src="{{ org.avatar }}" alt="{{ org.name }} org picture" class="org"></a>
 						<p>{{ org.description}}</p>
 					</li>
 	  			{% endfor %}
@@ -80,5 +80,13 @@
 			</div>
 		</div>
 		<script src="{{ static_url }}script.js"></script>
+		<script>
+			(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+			(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+			m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+			})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+			ga('create', 'UA-38226657-2', 'auto');
+			ga('send', 'pageview');
+		</script>
 	</body>
 </html>
