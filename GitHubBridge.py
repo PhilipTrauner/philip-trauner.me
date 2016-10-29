@@ -28,10 +28,6 @@ class GitHub:
 		self.repo_last_retrieve = None
 		self.org_last_retrieve = None
 
-		self.loop = asyncio.get_event_loop()
-
-
-
 
 	@property
 	def repos(self):
