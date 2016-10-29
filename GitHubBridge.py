@@ -48,7 +48,7 @@ class GitHub:
 			if (self.org_last_retrieve != None):
 				if (self.org_last_retrieve + self.refresh_delay) < time():
 					self.org_last_retrieve = time()
-					start_new_thread(self._fetch_orgs())
+					start_new_thread(self._fetch_orgs, ())
 			else:
 				self._fetch_orgs()
 				self.org_last_retrieve = time()
