@@ -19,9 +19,9 @@ def get(*args, **kwargs):
 	try:
 		response =  _get(*args, **kwargs)
 		if response.status_code == 200:
-			return MockedResponse()
+			return response
 		else:
-			return []
+			return MockedResponse()
 	except (gaierror, IOError):
 		return MockedResponse()
 
