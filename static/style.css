@@ -1,0 +1,186 @@
+body {
+	margin: 0;
+	padding: 0;
+}
+
+ul {
+	list-style-type: none;
+	padding-left: 0;
+}
+
+h2 {
+	display: inline-block;
+}
+
+p {
+	margin: 0.4em 0 0.3em 0;
+}
+
+p:first-child {
+	margin-top: 1em;
+}
+
+p:last-child {
+	margin-bottom: 0.7em;
+}
+
+.hidden {
+	display: none;
+}
+
+.content {
+	margin: 0 1em 0 1em;
+	font-family: 'Lato', sans-serif;
+}
+
+.content h1 {
+	margin: 0 0 0 0;
+}
+
+
+.right-column img {
+	width: 40px;
+	height: 40px;
+}
+
+.top-border {
+	display: none;
+}
+
+.seperator {
+	height: 0.2em;
+	border: 0;
+	background: black;
+	margin: 0 1em 0 1em;
+}
+
+
+.nav-collapse {
+	font-family: "Proxima-Nova-Extra-Condensed", sans-serif;
+}
+
+
+.nav-collapse a {
+	text-transform: uppercase;
+	font-weight: 400;
+	font-size: 112.5%;
+	letter-spacing: 2px;
+	color: white;
+	text-decoration: none;
+	width: 100%;
+	background: black;
+	border-bottom: 1px solid white;
+	padding: .5em 1em;
+	display: block;
+}
+
+.nav-collapse ul {
+	margin: 0 0 0 0;
+}
+
+.nav-collapse li {
+	width: 100%;
+	display: block;
+}
+
+.nav-collapse a:hover, .nav-collapse a:active {
+	background: grey;
+}
+
+.org {
+	width: 8em;
+	height: 8em;
+	display: block;
+}
+
+.stars {
+	float: right;
+}
+
+.stars img {
+	padding-right: 0.2em;
+	vertical-align: 2%;
+}
+
+.star-count {
+	display: inline-block;
+	width: 2.5em;
+	text-align: right;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.forked {
+	margin-right: 0.5em;
+}
+
+
+
+@media screen and (min-width: 625px) {
+	.nav-collapse, .nav-collapse ul {
+		margin: 0;
+		padding: 0;
+		text-align: center;
+	}
+
+	.nav-collapse a {
+		margin: 0;
+		padding: 2em 0.7em 0.5em 0.7em;
+		font-size: 1.1em;
+		background: transparent;
+		color: black;
+		border: 0;
+	}
+
+	.nav-collapse li {
+		display: inline-block;
+		width: auto;
+		margin-left: .5em;
+		margin-right: .5em;
+	}
+
+	.nav-collapse a:hover, .nav-collapse a:active {
+		background: black; 
+		color: white;
+	}
+
+	.top-border {
+		height: 0.3em;
+		background: black;
+		z-index: 1;
+		top: 0;
+		left: 0;
+		right: 0;
+		position: relative;
+		display: block;
+	}
+
+	.seperator {
+		width: 80%;
+		margin: 0 auto 0 auto;
+	}
+
+	.content {
+		margin: 1em auto 0 auto;
+		width: 80%;
+	}
+
+
+	.right-column {
+		float: right;
+		text-align: right;
+		
+	}
+
+	.left-column {
+		float: left;
+		text-align: left;
+	}
+
+
+}
+
+#about:target, #projects:target, #services:target {
+	display: block;
+}

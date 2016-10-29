@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1">
+		<link href="{{ static_url }}style.css" media="screen" rel="stylesheet" type="text/css"/>
+		<link rel="icon" href="{{ static_url }}favicon.png">
+		<link rel="apple-touch-icon" href="{{ static_url }}touch-icon.png" />
+		<link href='https://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
+		<title>Philip Trauner</title>
+	</head>
+	<body>
+		<div class="top-border"></div>
+		<div class="nav-collapse">
+			<ul>
+				<li><a href="#about">About</a></li>
+				<li><a href="#projects">Projects</a></li>
+				<li><a href="#services">Services</a></li>
+			</ul>
+		</div>
+		<div id="about" class="hidden content">
+			<h1>About</h1>
+			<p>Hi, my name is <a href="https://twitter.com/PhilipTrauner">Philip Trauner</a>.</p>
+			<p>I'm a cynical computer science student residing in Austria. I do stuff on the interwebs™.</p>
+			<p>I'm part of a robotics teams called <a href="http://robot0nfire.com">robot0nfire</a> where I do most of the talking (well, actually all of it) and I'm also the person to scream at if you are offended by our PR. We are quite successful \ (•◡•) /.</p>
+			<p>I can get comfortable with the basics of programming languages pretty quickly and primarily enjoy working in high-level ones like Python, Swift, JavaScript and C# (and despise Java). I saidly haven't gotten around to implement something big in C, C++ and Rust, something I definitely plan on doing in the near future once I've found a project that can't be written in Python for performance reasons.</p>
+			<p>I'm proficient in all three major operating systems (Linux, macOS, Windows) and would rather be homeless than use Windows on a productivity-machine.</p>
+			<p>If you want to talk to me, visit me in my <a href="#services">doctor's office</a> (has nothing to do with medicine, just an escalated inside joke) or shoot me an e-mail to my contact address (which is an AOL address because I'm too lazy to switch).</p>
+			<p>I guess that's it for now. If I get around to it I might update some of this later down the road (I won't).</p>
+		</div>
+		<div id="projects" class="hidden content">
+			<h1>Repos</h1>
+				<ul>
+					{% for repo in repos %}
+					<li>
+						{% if repo.fork %}
+							<img class="forked" src="{{ static_url }}octicons/build/svg/repo-forked.svg">
+						{% endif %}
+						<a href="{{ repo.url }}"><h2>{{ repo.name }}</h2></a>
+						<span class="stars">
+							<img src="{{ static_url }}octicons/build/svg/star.svg"><span class="star-count">{{ repo.stars }}</span>
+						</span>
+						<p>{{ repo.description }} </p>
+					</li>
+	  				{% endfor %}
+  				</ul>
+			<h1>Organisations</h1>
+			<ul>
+				{% for org in orgs %}
+					<li>
+						<a href="{{ org.url }}">
+						<h2>{{ org.name }}</h2><img src="{{ org.avatar }}" class="org"></a>
+						<p>{{ org.description}}</p>
+					</li>
+	  			{% endfor %}
+  			</ul>
+		</div>
+		<div id="services" class="hidden content">
+			<h1>Services</h1>
+			<ul>
+				<li>
+					<a href="ts3server://arztpraxis.pw?port=9987"><h2>Dr. Phil's Arztpraxis</h2></a>
+					<p>Are you already feeling dead inside? Excellent, that means we can't do any wrong and cash out on insurance money!</p>
+				</li>
+			</ul>
+		</div>
+		<hr class="seperator">
+		<div class="content">
+			<div class="left-column">
+				<h2>Impressum</h2>
+				<p>Philip Trauner<br>Johann Wilhelm Ganglbergergasse 24<br>2700 Wiener Neustadt</p>
+			</div>
+			<div class="right-column">
+				<h2>Contact</h2>
+				<p>philip.trauner[at]aol[dot]com</p>
+				<a href="https://twitter.com/PhilipTrauner"><img src="{{ static_url }}twitter.png" alt="Twitter"></a>
+				<a href="https://github.com/PhilipTrauner"><img src="{{ static_url }}github.png" alt="GitHub"></a>
+				<a href="http://last.fm/user/PhilipTrauner"><img src="{{ static_url }}last-fm.png" alt="LastFM"></a>
+				<a href="https://medium.com/@PhilipTrauner"><img src="{{ static_url }}medium.png" alt="Medium"></a>
+			</div>
+		</div>
+		<script src="{{ static_url }}script.js"></script>
+	</body>
+</html>
