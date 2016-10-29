@@ -1,0 +1,5 @@
+settings.config
+__pycache__
+.DS_Store
+*.cfg
+github-dump.pickle
