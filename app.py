@@ -18,6 +18,7 @@ config += Option("static_url", "")
 config += Option("static_handler", False, comment="Serves static files")
 config += Option("cache_github", False, comment="Caches repos and orgs when on")
 config += Option("debug", False)
+config += Option("additional_repos", [], comment="Additional repos")
 
 try:
     config = config.load(CONFIG_PATH)
@@ -37,14 +38,15 @@ app = Sanic(NAME)
 
 if config.cache_github:
 	if not exists(DUMP_PATH):
-		github = GitHub(config.github_user)
+		github = GitHub(config.github_user, 
+			additional_repos=config.additional_repos)
 		github.force_fetch()
 		open(DUMP_PATH, "wb").write(pickle.dumps(github))
 	else:
 		github = pickle.loads(open(DUMP_PATH, "rb").read())
 		github.disable_fetch = True
 else:
-	github = GitHub(config.github_user)
+	github = GitHub(config.github_user, additional_repos=config.additional_repos)
 
 if config.static_handler:
 	app.static('/static', './static')
