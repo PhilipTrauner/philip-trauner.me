@@ -29,7 +29,7 @@ def get(*args, **kwargs):
 
 
 class GitHub:
-	def __init__(self, user, refresh_delay=720, disable_fetch=False, 
+	def __init__(self, user, refresh_delay=3600, disable_fetch=False, 
 			additional_repos=[]):
 		self.user = user
 		self.refresh_delay = refresh_delay
