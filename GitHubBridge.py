@@ -29,10 +29,12 @@ def get(*args, **kwargs):
 
 
 class GitHub:
-	def __init__(self, user, refresh_delay=720, disable_fetch=False):
+	def __init__(self, user, refresh_delay=720, disable_fetch=False, 
+			additional_repos=[]):
 		self.user = user
 		self.refresh_delay = refresh_delay
 		self.disable_fetch = False
+		self.additional_repos = additional_repos
 
 		self._repos = []
 		self._orgs = []
@@ -78,6 +80,13 @@ class GitHub:
 				forks.append(repo)
 			else:
 				repos.append(repo)
+		for repo in self.additional_repos:
+			repo = get("https://api.github.com/repos/%s" % repo).json()
+			repo = Repo(*[repo["html_url"], repo["name"],
+				repo["watchers_count"], repo["stargazers_count"],
+				repo["fork"], repo["description"],
+				repo["forks"], repo["language"]])
+			repos.append(repo)			
 		for org in self.orgs:
 			for repo in get("https://api.github.com/orgs/%s/repos" % org.name).json():
 				repo = Repo(*[repo["html_url"], repo["name"],
