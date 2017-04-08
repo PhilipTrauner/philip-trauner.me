@@ -1,0 +1,29 @@
+{
+  "name": "philip-trauner.me",
+  "version": "1.0.0",
+  "description": "This is the code for my website. There's not much to see, really.",
+  "scripts": {
+    "build": "node_modules/uglify-js/bin/uglifyjs static/script.js -o static/script.min.js && node_modules/uglifycss/uglifycss static/style.css > static/style.min.css && node_modules/html-minifier-cli/bin/htmlmin templates/index.html > templates/index.min.html"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PhilipTrauner/philip-trauner.me.git"
+  },
+  "keywords": [
+    "homepage",
+    "website",
+    "Philip Trauner",
+    "arztpraxis"
+  ],
+  "author": "Philip Trauner",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/PhilipTrauner/philip-trauner.me/issues"
+  },
+  "homepage": "https://github.com/PhilipTrauner/philip-trauner.me#readme",
+  "dependencies": {
+    "html-minifier-cli": "^0.1.0",
+    "uglify-js": "^2.8.21",
+    "uglifycss": "0.0.25"
+  }
+}
