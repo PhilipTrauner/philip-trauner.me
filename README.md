@@ -4,21 +4,19 @@ This is the code for my website. There's not much to see, really.
 
 ## Install
 ```bash
+git lfs install
 git clone https://github.com/PhilipTrauner/philip-trauner.me.git
+pip3 install pipenv
 cd philip-trauner.me
-pip3 install -r requirements.txt
+pipenv install
 npm install
 npm run build
-git submodule init
-git submodule update
-git lfs install
 git lfs pull
-cd static/octicons
-npm install && npm run build
 ```
 
 ## Run
 ```bash
+pipenv shell
 python3 app.py
 ```
 
