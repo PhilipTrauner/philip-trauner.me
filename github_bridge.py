@@ -100,8 +100,10 @@ class GitHub:
 						else:
 							repos.append(repo)
 						break
-		if len(repos) > 0 and len(forks) > 0:
-			self._repos = sorted(repos, reverse=True) + sorted(forks, reverse=True)
+		if len(repos) > 0:
+			self._repos = sorted(repos, reverse=True)
+		if len(forks) > 0:
+			self._repos += sorted(forks, reverse=True)
 
 
 	def _fetch_orgs(self):
