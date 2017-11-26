@@ -1,3 +1,0 @@
-[submodule "static/octicons"]
-	path = static/octicons
-	url = git@github.com:primer/octicons.git
