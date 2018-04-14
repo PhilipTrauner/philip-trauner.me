@@ -22,6 +22,3 @@ python3 app.py
 
 Upon first lauch a config file called `philip-trauner.me.cfg` is created. Edit it to suit your needs.  
 By default there is no static content serving activated and a web server is required, switch `static_handler` to `True` and that is taken care of.
-
-## Caveats
-The GitHub integration is not really an integration at all because it works without authentication, which is good because I don't want to worry about access tokens every time I deploy this somewhere.
