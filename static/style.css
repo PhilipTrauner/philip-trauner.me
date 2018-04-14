@@ -57,6 +57,7 @@ p:last-child {
 
 .nav-collapse {
 	font-family: "Proxima-Nova-Extra-Condensed", sans-serif;
+	margin-bottom: 1em;
 }
 
 
@@ -181,6 +182,41 @@ p:last-child {
 
 }
 
-#about:target, #projects:target, #services:target {
+.playlist-container {
+	text-align: -webkit-center;
+}
+
+.playlist-grid {
+	display: inline-grid;
+	grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+	grid-gap: 1.2em 2em;
+	margin-top: 1em;
+	margin-bottom: 1em;
+	width: 100%;
+}
+
+.playlist-grid > a {
+	text-decoration: none !important;
+	color: black;
+}
+
+.playlist-cover {
+	background-color: white;
+	border: 4px solid rgba(0, 0, 0, 1);
+	background-size: auto 200px;
+	background-position: center;
+	width: 200px;
+	height: 200px;
+	margin-bottom: 0.2em;
+}
+
+.playlist {
+	text-align: left;
+	width: 200px;
+}
+
+
+#about:target, #projects:target, #services:target, #playlists:target {
 	display: block;
 }
+

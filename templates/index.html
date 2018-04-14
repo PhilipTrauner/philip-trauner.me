@@ -15,6 +15,7 @@
 			<ul>
 				<li><a href="#about">About</a></li>
 				<li><a href="#projects">Projects</a></li>
+				<li><a href="#playlists">Playlists</a></li>
 				<li><a href="#services">Services</a></li>
 			</ul>
 		</div>
@@ -69,6 +70,22 @@
 	  			{% endfor %}
   			</ul>
 		</div>
+		<div id="playlists" class="hidden content">
+			<h1>Playlists</h1>
+			<div class="playlist-container">
+				<div class="playlist-grid">
+					{% for playlist in playlists %}
+					<a href="{{ playlist.url }}">
+						<div class="playlist">
+							<div class="playlist-cover" style="background-image: url({{ playlist.image }})">
+							</div>
+							{{ playlist.name }}
+						</div>
+					</a>
+	  				{% endfor %}
+	  			</div>			
+			</div>
+		</div>		
 		<div id="services" class="hidden content">
 			<h1>Services</h1>
 			<ul>
