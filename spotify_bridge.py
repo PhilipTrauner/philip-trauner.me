@@ -1,4 +1,5 @@
 from time import time
+from _thread import start_new_thread
 
 class Spotify:
 	def __init__(self, user, spotify, refresh_delay=3600, disable_fetch=False):
