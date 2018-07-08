@@ -243,6 +243,10 @@ footer h2,  {
 	margin-bottom: 0.2em;
 }
 
+.project-warning {
+	text-align: center;
+}
+
 .playlist-container {
 	text-align: -webkit-center;
 }
@@ -270,6 +274,15 @@ footer h2,  {
 	height: 200px;
 	margin-bottom: 0.2em;
 }
+
+.playlist-warning {
+	text-align: center;
+}
+
+.playlist-warning p {
+	margin-bottom: 1em;
+}
+
 
 .dot-dot-dot-start-date {
 	margin-left: 0.5em;	
