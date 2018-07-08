@@ -8,20 +8,8 @@ ul {
 	padding-left: 0;
 }
 
-h2 {
-	display: inline-block;
-}
-
 p {
 	margin: 0.4em 0 0.3em 0;
-}
-
-p:first-child {
-	margin-top: 1em;
-}
-
-p:last-child {
-	margin-bottom: 0.7em;
 }
 
 .hidden {
@@ -55,13 +43,13 @@ p:last-child {
 }
 
 
-.nav-collapse {
-	font-family: "Proxima-Nova-Extra-Condensed", sans-serif;
+header {
+	font-family: Arial, Helvetica, sans-serif;
 	margin-bottom: 1em;
 }
 
 
-.nav-collapse a {
+header a {
 	text-transform: uppercase;
 	font-weight: 400;
 	font-size: 112.5%;
@@ -71,61 +59,32 @@ p:last-child {
 	width: 100%;
 	background: black;
 	border-bottom: 1px solid white;
-	padding: .5em 1em;
+	padding: 0.5em 1em;
 	display: block;
 }
 
-.nav-collapse ul {
+header ul {
 	margin: 0 0 0 0;
 }
 
-.nav-collapse li {
+header li {
 	width: 100%;
 	display: block;
 }
 
-.nav-collapse a:hover, .nav-collapse a:active {
+header a:hover, header a:active {
 	background: grey;
 }
 
-.org {
-	width: 8em;
-	height: 8em;
-	display: block;
-}
-
-.stars {
-	float: right;
-}
-
-.stars img {
-	padding-right: 0.2em;
-	vertical-align: 2%;
-}
-
-.star-count {
-	display: inline-block;
-	width: 2.5em;
-	text-align: right;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
-}
-
-.forked {
-	margin-right: 0.5em;
-}
-
-
 
 @media screen and (min-width: 625px) {
-	.nav-collapse, .nav-collapse ul {
+	header, header ul {
 		margin: 0;
 		padding: 0;
 		text-align: center;
 	}
 
-	.nav-collapse a {
+	header a {
 		margin: 0;
 		padding: 2em 0.7em 0.5em 0.7em;
 		font-size: 1.1em;
@@ -134,14 +93,14 @@ p:last-child {
 		border: 0;
 	}
 
-	.nav-collapse li {
+	header li {
 		display: inline-block;
 		width: auto;
 		margin-left: .5em;
 		margin-right: .5em;
 	}
 
-	.nav-collapse a:hover, .nav-collapse a:active {
+	header a:hover, header a:active {
 		background: black; 
 		color: white;
 	}
@@ -178,8 +137,110 @@ p:last-child {
 		float: left;
 		text-align: left;
 	}
+}
 
+#about p:first-child {
+	margin-top: 1em;
+}
 
+#about p:last-child {
+	margin-bottom: 0.7em;
+}
+
+footer h2,  {
+	display: inline-block;
+}
+
+#repos h2 {
+	display: inline-block;
+	margin-bottom: 0;
+}
+
+.about-greeting {
+	margin-left: -0.065em !important;
+}
+
+#projects p {
+	margin-top: 0.8em;
+	margin-bottom: 1em;
+}
+
+.project-header {
+	display: flex;
+}
+
+.project-header a {
+	flex: 1;
+}
+
+.project-header h3 {
+	display: inline-block;
+	margin-bottom: 0.4em;
+	margin-top: 0.4em;	
+}
+
+.project-org {
+	width: 8em;
+	height: 8em;
+	display: block;
+}
+
+.project-stars {
+	align-self: center;
+}
+
+.project-stars img {
+	padding-right: 0.2em;
+	vertical-align: 2%;
+}
+
+.project-star-count {
+	display: inline-block;
+	width: 2.5em;
+	text-align: right;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.project-fork {
+	margin-right: 0.5em;
+	align-self: center;
+}
+
+.project-label {
+	color: rgb(88, 96, 105);
+	display: inline-block;
+	word-wrap: break-word;
+	border: 1px solid rgba(27, 31, 35, 0.15);
+	border-radius: 2px 2px 2px 2px;
+	outline: rgb(88, 96, 105) none 0px;
+	padding: 3px 4px;
+	font-size: 0.75em;
+	align-self: center;
+}
+
+.project-org-container {
+	text-align: -webkit-center;
+}
+
+.project-org-grid {
+	display: inline-grid;
+	grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+	grid-gap: 1.2em 2em;
+	margin-top: 1em;
+	margin-bottom: 1em;
+	width: 100%;
+}
+
+.project-org-cover {
+	background-color: white;
+	border: 4px solid rgba(0, 0, 0, 1);
+	background-size: auto 150px;
+	background-position: center;
+	width: 150px;
+	height: 150px;
+	margin-bottom: 0.2em;
 }
 
 .playlist-container {
@@ -195,7 +256,7 @@ p:last-child {
 	width: 100%;
 }
 
-.playlist-grid > a {
+.playlist-grid a {
 	text-decoration: none !important;
 	color: black;
 }
@@ -210,13 +271,24 @@ p:last-child {
 	margin-bottom: 0.2em;
 }
 
-.playlist {
-	text-align: left;
-	width: 200px;
+.dot-dot-dot-start-date {
+	margin-left: 0.5em;	
+}
+
+.dot-dot-dot-start-date:before {
+	content: "(";
+}
+
+.dot-dot-dot-end-date {
+
+}
+
+.dot-dot-dot-end-date:before {
+	content: ")";
 }
 
 
-#about:target, #projects:target, #services:target, #playlists:target {
+#about:target, #projects:target, #blog:target, #playlists:target, #dot-dot-dot:target {
 	display: block;
 }
 
