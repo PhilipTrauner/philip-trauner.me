@@ -9,5 +9,9 @@ Meh = "==1.2.1"
 requests = "==2.18.4"
 Sanic = "==0.7.*"
 spotipy = "*"
+mistune = "*"
+pygments = "*"
+"watchdog3" = "*"
+"rfeed" = {git = "https://github.com/svpino/rfeed"}
 
 [dev-packages]
