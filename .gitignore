@@ -5,3 +5,6 @@ __pycache__
 github-dump.pickle
 *.min.*
 node_modules
+*.resized.*
+static/github-markdown-base.css
+static/github-markdown-processed.css
