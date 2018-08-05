@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "This is the code for my website. There's not much to see, really.",
   "scripts": {
-    "build": "node_modules/uglify-js/bin/uglifyjs static/script.js -o static/script.min.js && node_modules/uglifycss/uglifycss static/style.css > static/style.min.css && node_modules/html-minifier-cli/bin/htmlmin templates/index.html > templates/index.min.html"
   },
   "repository": {
     "type": "git",
@@ -22,8 +21,9 @@
   },
   "homepage": "https://github.com/PhilipTrauner/philip-trauner.me#readme",
   "dependencies": {
-    "html-minifier-cli": "^0.1.0",
+    "generate-github-markdown-css": "^2.2.0",
     "uglify-js": "^2.8.21",
-    "uglifycss": "0.0.25"
+    "uglifycss": "^0.0.29",
+    "pygments-github-css": "PhilipTrauner/pygments-github-css"
   }
 }
