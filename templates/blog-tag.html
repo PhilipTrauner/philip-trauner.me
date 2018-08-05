@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% import "blog.jinja" as blog %}
+
+{% block head %}
+    {{ super() }}
+    <link href="{{ static_url }}blog.min.css" media="screen" rel="stylesheet" type="text/css" />    
+{% endblock %}
+
+{% block title %}Tag: {{tag}}{% endblock %} 
+
+{% block content %}
+
+{% if posts %}
+<a href="/#blog"><span class="back-arrow" alt="Back">⭠</span></a>
+<div class="content">
+	{{ blog.post_list(posts) }}
+</div>
+{% else %}
+<div class="content warning">
+	<svg height="32" width="32" viewBox="0 0 16 16">
+		<use xlink:href="#warning"></use>
+	</svg>
+	<p>Unknown tag :(</p>
+</div>
+{% endif %}
+
+{% endblock %}
