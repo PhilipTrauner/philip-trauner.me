@@ -10,6 +10,11 @@ body {
 	margin-right: 10vw;
 }
 
+.content a {
+	color: #0366d6;
+}
+
+
 .content h1 {
 	margin: 0 0 0 0;
 }
