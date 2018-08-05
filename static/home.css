@@ -79,6 +79,10 @@ header a:hover, .header-selected {
 	color: white;
 }
 
+h2, h3 {
+	color: black;
+}
+
 @media screen and (max-width: 655px) {
 	header {
 		margin-bottom: 1em;
