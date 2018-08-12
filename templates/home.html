@@ -4,7 +4,6 @@
 {% block head %}
     {{ super() }}
     <link href="{{ static_url }}home.min.css" media="screen" rel="stylesheet" type="text/css" />
-    <link href="{{ static_url }}blog.min.css" media="screen" rel="stylesheet" type="text/css" />
 {% endblock %}
 
 {% block title %}Home{% endblock %}
@@ -12,18 +11,18 @@
 {% block content %}
 <header>
 	<ul>
-		<li><a href="#about">About</a></li>
-		<li><a href="#blog">Blog</a></li>
-		<li><a href="#projects">Projects</a></li>
-		<li><a href="#playlists">Playlists</a></li>
-		<li><a href="#dot-dot-dot">...</a></li>
+		<li><a href="/about">About</a></li>
+		<li><a href="/blog">Blog</a></li>
+		<li><a href="/projects">Projects</a></li>
+		<li><a href="/playlists">Playlists</a></li>
+		<li><a href="/dot-dot-dot">...</a></li>
 	</ul>
 </header>
 <div id="about" class="hidden content">
-	<h1 class="about-greeting">Hi!</h1>
+	<span class="about-greeting">Hi!</span>
 	<p>My name is <a href="https://twitter.com/PhilipTrauner">Philip Trauner</a>.</p>
-	<p>I'm a software engineer living in Austria. I sometimes write about <a href="/#blog">programming related things</a>, create <a href="/#projects">open-source tools</a> as well as <a href="/#projects">libraries</a>, and listen to <a href="/#playlists">lots of music</a>.</p>
-	<p>Other than that, I've also developed a <a href="/#projects/repo-0s">Debian based operating system</a> for a robotics controller that nobody uses, a project of mine has reached the <a href="https://news.ycombinator.com/item?id=15893214">HN front-page</a>, and something I wrote about comments was featured on a <a href="https://pythonbytes.fm/episodes/show/35/how-developers-change-programming-languages-over-time">Python podcast</a>.</p>
+	<p>I'm a software engineer living in Austria. I sometimes write about <a href="/blog">programming related things</a>, create <a href="/projects">open-source tools</a> as well as <a href="/projects">libraries</a>, and listen to <a href="/playlists">lots of music</a>.</p>
+	<p>Other than that, I've also developed a <a href="/projects#repo-0s">Debian based operating system</a> for a robotics controller that nobody uses, a project of mine has reached the <a href="https://news.ycombinator.com/item?id=15893214">HN front-page</a>, and something I wrote about comments was featured on a <a href="https://pythonbytes.fm/episodes/show/35/how-developers-change-programming-languages-over-time">Python podcast</a>.</p>
 	<blockquote>
 		<div>
 			<span>"</span>
@@ -143,9 +142,15 @@
 	<ul>
 		<li id="arztpraxis">
 			<a href="ts3server://arztpraxis.io?port=9987"><h3>Dr. Phil's Arztpraxis</h3></a>
-			<p>Are you feeling dead inside? Excellent, that means we can't do any wrong and cash out on insurance money!</p>
+			<p>Are you feeling dead inside? Excellent, that means we can't do any wrong and cash out on insurance money! (TeamSpeak 3 server)</p>
 		</li>
 	</ul>
+	<ul>
+		<li>
+			<a href="{{ rss_url }}"><h3>RSS Feed</h3></a>
+			<p>Still using RSS? Great, here is a feed for ya'.</p>
+		</li>
+	</ul>	
 	<h2>Employment history</h2>
 	<ul>
 		<li>
