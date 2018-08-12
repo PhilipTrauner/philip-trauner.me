@@ -3,5 +3,6 @@
 	"tags" : ["python", "comments", "ast", "speed", "docstrings", "strings"],
 	"license" : "by-nc",
 	"description" : "Performance comparison of various Python comment types.",
-	"section" : "Python"
+	"section" : "Python",
+	"author" : "Philip Trauner"
 }
