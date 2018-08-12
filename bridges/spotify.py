@@ -1,9 +1,28 @@
 from time import time
 from _thread import start_new_thread
+from typing import List, Optional
+
+from spotipy import Spotify as Spotipy
+
+
+class Playlist:
+    def __init__(self, name: str, url: str, image: Optional[str] = None) -> None:
+        self.name = name
+        self.url = url
+        self.image = image
+
+    def __repr__(self) -> str:
+        return self.name
 
 
 class Spotify:
-    def __init__(self, user, spotify, refresh_delay=3600, disable_fetch=False):
+    def __init__(
+        self,
+        user: str,
+        spotify: Spotipy,
+        refresh_delay: int = 3600,
+        disable_fetch: bool = False,
+    ):
         self.user = user
         self.sp = spotify
 
@@ -14,7 +33,7 @@ class Spotify:
         self.last_retrieve = None
 
     @property
-    def playlists(self):
+    def playlists(self) -> List[Playlist]:
         if not self.disable_fetch:
             if self.last_retrieve != None:
                 if (self.last_retrieve + self.refresh_delay) < time():
@@ -25,7 +44,7 @@ class Spotify:
                 self.last_retrieve = time()
         return self._playlists
 
-    def _fetch_playlists(self):
+    def _fetch_playlists(self) -> None:
         playlists = self.sp.user_playlists(self.user)
         playlists_ = []
 
@@ -46,13 +65,3 @@ class Spotify:
                 playlists = None
 
         self._playlists = playlists_
-
-
-class Playlist:
-    def __init__(self, name, url, image=None):
-        self.name = name
-        self.url = url
-        self.image = image
-
-    def __repr__(self):
-        return self.name
