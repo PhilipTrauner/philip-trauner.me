@@ -10,7 +10,7 @@
 <div>
 	<ul class="post-list">
 		{% for post in posts %}
-		<li>
+		<li class="post">
 			<a href="/blog/post/{{ post.name }}"><h2 id="post-{{ post.name }}">{{ post.title }}</h2></a>
 			<div class="date">{{ post.post_metadata.date.pretty_date }}</div>
 			{{ tag_list(post) }}
@@ -19,4 +19,10 @@
 		{% endfor %}
 	</ul>
 </div>
+{%- endmacro %}
+
+{% macro back_arrow(location) -%}
+<a href="{{ location }}">
+	<span class="back-arrow" alt="Back">⇤</span>
+</a>
 {%- endmacro %}
