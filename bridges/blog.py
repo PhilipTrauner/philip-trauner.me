@@ -17,6 +17,8 @@ from pygments import highlight
 from pygments.lexers import get_lexer_by_name
 from pygments.formatters import html
 
+from urlpath import URL as Url
+
 from rfeed import Feed, Item, Guid
 
 WARNING_COLOR = "\033[33m"
@@ -103,7 +105,7 @@ class Image:
             self.path = path
             self.url = url
 
-    def __new__(cls: Type["Image"], path: Path, image_base_url: Path):
+    def __new__(cls: Type["Image"], path: Path, image_base_url: Url):
         return Image._Image(path.absolute(), str(image_base_url / path.name))
 
 
@@ -179,11 +181,11 @@ class Post:
             self.has_code = has_code
 
     def __new__(
-        cls: Type["Post"], post_path: Path, image_base_url: str
+        cls: Type["Post"], post_path: Path, image_base_url: Url
     ) -> "Post._Post":
         if Post.valid(post_path):
             content_path = post_path / CONTENT_FOLDER
-            image_base_url = Path(image_base_url) / post_path.name / CONTENT_FOLDER
+            image_base_url = image_base_url / post_path.name / CONTENT_FOLDER
 
             unmodified_post_content = open(post_path / BLOG_TEXT, "r").read()
 
@@ -241,7 +243,7 @@ class Post:
 
     @staticmethod
     def find_images(
-        post_content: str, content_path: Path, image_base_url: Path
+        post_content: str, content_path: Path, image_base_url: Url
     ) -> List[Image._Image]:
         images = [
             Image(
@@ -281,7 +283,7 @@ class Blog:
     MARKDOWN = MistuneMarkdown(renderer=_HighlightRenderer())
 
     def __init__(
-        self, path: Path, image_base_url: str, rss_base_url: str, rss_url: str
+        self, path: Path, image_base_url: Url, rss_base_url: Url, rss_url: Url
     ) -> None:
         self.path = path
         self.image_base_url = image_base_url
@@ -363,7 +365,7 @@ class Blog:
             if folder.is_dir() and Post.valid(folder):
                 post = Post(folder, self.image_base_url)
 
-                link = str(Path(self.rss_base_url) / post.name)
+                link = str(self.rss_base_url / post.name)
 
                 feed_items.append(
                     Item(
