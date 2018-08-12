@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "philip-trauner.me"
+version = "0.1.0"
+readme = "README.md"
+description = ""
+authors = ["Philip Trauner <philip.trauner@arztpraxis.io>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.6"
+Jinja2 = "^2.10"
+Meh = "^1.2"
+requests = "^2.19"
+Sanic = "^0.7.0"
+spotipy = "^2.4"
+mistune = "^0.8.3"
+pygments = "^2.2"
+watchdog3 = "^0.8.4"
+rfeed = { git = "https://github.com/PhilipTrauner/rfeed.git" }
+
+[tool.poetry.dev-dependencies]
+monkeytype = "^18.5"
+black = "^18.3-alpha.0"
