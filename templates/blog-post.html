@@ -13,7 +13,7 @@
 	{% endif %}
 	<link href="{{ static_url }}github-markdown-processed.min.css" media="screen" rel="stylesheet" type="text/css" />
 	<link href="{{ static_url }}github.min.css" media="screen" rel="stylesheet" type="text/css" />
-	<link href="{{ static_url }}blog.min.css" media="screen" rel="stylesheet" type="text/css" />  
+	<link href="{{ static_url }}blog-post.min.css" media="screen" rel="stylesheet" type="text/css" />  
 {% endblock %}
 
 
@@ -21,11 +21,11 @@
 {% block title %}{% if post %}{{post.title}}{% else %}Post not found{% endif %}{% endblock %} 
 {% block description %}{% if post %}{{ post.post_metadata.description }}{% else %}This post has either been swept under the rug or has never existed in the first place. Let your imagination go wild! :){% endif %}{% endblock %}
 
-{% block image %}{% if post and post.images %}{{ post.images[0] }}{% else %}{{ super() }}{% endif %}{% endblock %}
+{% block image %}{% if post and post.images %}{{ post.images[0].url }}{% else %}{{ super() }}{% endif %}{% endblock %}
 
 {% block content %}
 {% if post %}
-<a href="/#blog/post-{{ post.name }}"><span class="back-arrow" alt="Back">⭠</span></a>
+{{ blog.back_arrow("/blog#post-" + post.name) }}
 <article class="content">
 	<div class="title-container">
 		<h1>{{post.title}}</h1>
@@ -40,7 +40,9 @@
 			<img src="{{ post.post_metadata.license.image_url }}" />
 			{{post.post_metadata.license.name}}
 		</a>
+		{% if post.has_code %}
 		(only applies to text, code license: <a href="https://opensource.org/licenses/MIT">MIT</a>)
+		{% endif %}
 	</div>
 </article>
 <script src="https://utteranc.es/client.js"
