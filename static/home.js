@@ -1,88 +1,80 @@
 'use strict';
 
-var DEFAULT_ANCHOR = 'about';
+var DEFAULT_PATH= 'about';
+var LINK_NODE_NAME = 'A';
+var LINK_REGEX = '^\/[^\/]+\/?$';
 
-var header = document.getElementsByTagName('header')[0];
-var navigationElements = header.children[0].children;
-var rootAnchors = document.querySelectorAll('.content[id]');
+var contentDivisions = document.querySelectorAll('.content[id]');
+var paths = {};
+var suppressPopStateEventHandler = false; 
 
-function currentAnchor() {
-  return (location.href.indexOf("#") !== -1 ? location.href.substring(
-    location.href.indexOf("#") + 1, location.href.length) : '');
+for (var contentId = 0; contentId < contentDivisions.length; contentId++) {
+  paths[contentDivisions[contentId].id] = [
+    contentDivisions[contentId], 
+    document.querySelectorAll(
+      'li > a[href="/' + contentDivisions[contentId].id + '"]')[0]
+  ];
 }
 
-// Reset anchor to default
-function resetAnchor() {
-  setAnchor(DEFAULT_ANCHOR);
+var pathsKeys = Object.keys(paths);
+
+function currentPath() {
+  return location.pathname.substring(1);
 }
 
-// Called on page visit to ensure that the default anchor is set
-function initialiseAnchor() {
-  if (location.href.substring(location.href.indexOf('#') + 1) == location.href) {
-    resetAnchor();
-  } else {
-    processAnchor(currentAnchor());
-  }
+function pathExists(path) {
+  return (pathsKeys.indexOf(path) !== -1);
 }
 
-function setAnchor(anchor) {
-  var rawAnchor = '#' + anchor;
-  headerSelect(document.querySelector('a[href="' + rawAnchor + '"]'));
-  if (anchor !== currentAnchor()) {
-    var currentLocation = location.href.split('#');
-    location.href = currentLocation[0] + rawAnchor;
-  }
-}
+function headerSelect(path) {
+  paths[path][1].classList = ['header-selected'];
 
-function processAnchor(anchor) {
-  // Anchor is set
-  if ((anchor.split('#').length - 1) == 0 || anchor !== '') {
-    var pathAnchor = anchor.split('/');
-    switch (pathAnchor.length) {
-      // Regular anchor
-      case 1:
-      // Anchor cascade
-      case 2:
-        for (var anchorIndex = 0; anchorIndex < rootAnchors.length; anchorIndex++) {
-          if (rootAnchors[anchorIndex].id === pathAnchor[0]) {
-            setAnchor(pathAnchor[0]);
-            if (pathAnchor.length == 2) {
-              var pathElement = document.getElementById(pathAnchor[1]);
-              if (pathElement !== null && rootAnchors[anchorIndex].contains(pathElement)) {
-                pathElement.scrollIntoView();
-              } else {
-                resetAnchor();
-              }
-            }
-            // Navigated to root anchor and scrolled path element into view or
-            // only navigated to root or
-            // non-existent path element and navigated to default anchor
-            return;
-          }
-        }
-      default:
-        // Invalid path
-        resetAnchor();
-    }
-  } else {
-    // Return to default anchor if extraneous '#' characters are present or
-    // anchor is empty
-    resetAnchor();
-  }
-}
-
-function headerSelect(navigationElement) {
-  for (var navId = 0; navId < header.children[0].childElementCount; navId++) {
-    if (navigationElements[navId].children[0] === navigationElement) {
-      navigationElements[navId].children[0].classList = ['header-selected'];
-    } else {
-      navigationElements[navId].children[0].classList = [];
+  for (var pathId = 0; pathId < pathsKeys.length; pathId++) {
+    if (pathsKeys[pathId] !== path) {
+      paths[pathsKeys[pathId]][1].classList = [];
     }
   }
 }
 
-initialiseAnchor();
+function processPath(path, hash) {
+  if (!pathExists(path)) {
+    path = DEFAULT_PATH; 
+  }
 
-window.addEventListener('hashchange', function(event) {
-  processAnchor(currentAnchor());
+  paths[path][0].classList = ['content'];
+
+  for (var pathId = 0; pathId < pathsKeys.length; pathId++) {
+    if (pathsKeys[pathId] !== path) {
+      paths[pathsKeys[pathId]][0].classList = ['hidden content'];
+    }
+  }
+
+  headerSelect(path);
+  history.pushState(null, null, path);
+  if (hash !== undefined) {
+    suppressPopStateEventHandler = true; 
+    location.hash = hash;
+  }
+}
+
+processPath(currentPath(), location.hash);
+
+window.addEventListener('click', function(e) {
+  var target = e.target;
+  if (target.nodeName == LINK_NODE_NAME && 
+      target.pathname !== undefined && 
+      target.host == location.host &&
+      target.pathname.match(LINK_REGEX)) {
+    processPath(target.pathname.substring(1), target.hash);
+    e.preventDefault();
+    e.stopPropagation();
+  }
 }, false);
+
+window.addEventListener('popstate', function(e) {
+  if (!suppressPopStateEventHandler) {
+    processPath(currentPath(), location.hash);
+  } else {
+    suppressPopStateEventHandler = false;
+  }
+});
