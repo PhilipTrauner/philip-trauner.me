@@ -12,7 +12,7 @@ build: node_modules static/github-markdown-base.css static/github.min.css
 	convert static/last-fm.png -resize 64x64 static/last-fm.resized.png
 
 install: build
-	pipenv install
+	poetry install
 
 node_modules: 
 	yarn install

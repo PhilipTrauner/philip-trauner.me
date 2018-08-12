@@ -11,6 +11,5 @@ make install
 
 ## Run
 ```bash
-pipenv shell
-python3 app.py
+poetry run python3 app.py
 ```
