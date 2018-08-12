@@ -9,6 +9,7 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 from spotipy import Spotify as Spotipy
 from spotipy.oauth2 import SpotifyClientCredentials as SCC
 from htmlmin.minify import html_minify
+from urlpath import URL as Url
 
 from bridges.github import GitHub, Repo, Org
 from bridges.spotify import Spotify, Playlist
@@ -90,7 +91,9 @@ github = (
     )
 )
 
-blog_ = Blog(Path("posts"), blog_static_url, config.rss_base_url, config.rss_url)
+blog_ = Blog(
+    Path("posts"), Url(blog_static_url), Url(config.rss_base_url), Url(config.rss_url)
+)
 
 
 # Wildcard route
