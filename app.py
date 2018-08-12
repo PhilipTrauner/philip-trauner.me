@@ -8,6 +8,7 @@ from sanic.response import html, text
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from spotipy import Spotify as Spotipy
 from spotipy.oauth2 import SpotifyClientCredentials as SCC
+from htmlmin.minify import html_minify
 
 from bridges.github import GitHub, Repo, Org
 from bridges.spotify import Spotify, Playlist
@@ -97,13 +98,15 @@ blog_ = Blog(Path("posts"), blog_static_url, config.rss_base_url, config.rss_url
 @app.route("/<path>")
 async def home(request, **kwargs):
     return html(
-        env.get_template("home.html").render(
-            repos=github.repos,
-            orgs=github.orgs,
-            static_url=static_url,
-            playlists=spotify.playlists,
-            posts=blog_.posts,
-            rss_url=config.rss_url,
+        html_minify(
+            env.get_template("home.html").render(
+                repos=github.repos,
+                orgs=github.orgs,
+                static_url=static_url,
+                playlists=spotify.playlists,
+                posts=blog_.posts,
+                rss_url=config.rss_url,
+            )
         )
     )
 
@@ -113,8 +116,10 @@ async def blog_post(request, post):
     post = blog_.find_post(unquote(post))
 
     return html(
-        env.get_template("blog-post.html").render(
-            static_url=static_url, blog_static_url=blog_static_url, post=post
+        html_minify(
+            env.get_template("blog-post.html").render(
+                static_url=static_url, blog_static_url=blog_static_url, post=post
+            )
         ),
         status=200 if post else 404,
     )
@@ -125,8 +130,10 @@ async def blog_tag(request, tag):
     posts = blog_.find_posts(unquote(tag))
 
     return html(
-        env.get_template("blog-tag.html").render(
-            static_url=static_url, posts=posts, tag=tag
+        html_minify(
+            env.get_template("blog-tag.html").render(
+                static_url=static_url, posts=posts, tag=tag
+            )
         ),
         status=200 if len(posts) > 0 else 404,
     )

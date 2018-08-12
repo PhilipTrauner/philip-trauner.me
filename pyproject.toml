@@ -17,6 +17,7 @@ mistune = "^0.8.3"
 pygments = "^2.2"
 watchdog3 = "^0.8.4"
 rfeed = { git = "https://github.com/PhilipTrauner/rfeed.git" }
+django-htmlmin = "^0.10.0"
 
 [tool.poetry.dev-dependencies]
 monkeytype = "^18.5"
