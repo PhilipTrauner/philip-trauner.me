@@ -2,7 +2,8 @@ build: node_modules static/github-markdown-base.css static/github.min.css
 	node_modules/uglify-js/bin/uglifyjs static/home.js -o static/home.min.js
 	node_modules/uglifycss/uglifycss static/base.css --output static/base.min.css
 	node_modules/uglifycss/uglifycss static/home.css --output static/home.min.css
-	node_modules/uglifycss/uglifycss static/blog.css --output static/blog.min.css	
+	node_modules/uglifycss/uglifycss static/blog-post.css --output static/blog-post.min.css	
+	node_modules/uglifycss/uglifycss static/blog-tag.css --output static/blog-tag.min.css	
 	python3 utils/github_css_postprocess.py
 	node_modules/uglifycss/uglifycss static/github-markdown-processed.css --output static/github-markdown-processed.min.css
 	convert static/twitter.png -resize 64x64 static/twitter.resized.png
