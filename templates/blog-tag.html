@@ -3,15 +3,14 @@
 
 {% block head %}
     {{ super() }}
-    <link href="{{ static_url }}blog.min.css" media="screen" rel="stylesheet" type="text/css" />    
+    <link href="{{ static_url }}blog-tag.min.css" media="screen" rel="stylesheet" type="text/css" />      
 {% endblock %}
 
 {% block title %}Tag: {{tag}}{% endblock %} 
 
 {% block content %}
-
+{{ blog.back_arrow("/blog") }}
 {% if posts %}
-<a href="/#blog"><span class="back-arrow" alt="Back">⭠</span></a>
 <div class="content">
 	{{ blog.post_list(posts) }}
 </div>
