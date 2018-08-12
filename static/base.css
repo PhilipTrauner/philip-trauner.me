@@ -4,16 +4,20 @@ body {
 	-webkit-text-size-adjust: 100%;
 }
 
+h1, h2, h3, h4, h5, h6 {
+	text-decoration: none;
+	color: #24292e;
+}
+
 .content {
 	font-family: 'Lato', sans-serif;
-	margin-left: 10vw;
-	margin-right: 10vw;
+	margin-left: 20vw;
+	margin-right: 20vw;
 }
 
 .content a {
 	color: #0366d6;
 }
-
 
 .content h1 {
 	margin: 0 0 0 0;
@@ -57,12 +61,59 @@ body {
 	height: 0.2em;
 	border: 0;
 	background: black;
-	margin-left: 10vw;
-	margin-right: 10vw;
+	margin-left: 20vw;
+	margin-right: 20vw;
 }
 
 .hidden {
 	display: none;
+}
+
+.tag {
+	display: inline-block;
+	padding: 0.3em 0.9em;
+	margin: 0 0.5em 0.5em 0;
+	white-space: nowrap;
+	background-color: #f1f8ff;
+	color: #0366d6;
+	text-decoration: none;    
+	font-size: 12px;
+}
+
+.date {
+	margin-bottom: 10px;
+	color: #6a737d;
+}
+
+.post-list {
+	list-style-type: none;
+	padding-left: 0;
+}
+
+.post {
+	border-bottom: 1px solid #eaecef;
+}
+
+.post:last-of-type {
+	border-bottom: none;
+}
+
+.post h2 {
+	margin-bottom: 0.15em;
+	margin-top: 12px;
+}
+
+.post a {
+	text-decoration: none;
+}
+
+.post .date {
+	margin-bottom: 0.4em;
+}
+
+.post p {
+	margin-top: 0.05em;
+	margin-bottom: 12px;
 }
 
 @media screen and (max-width: 655px) {
