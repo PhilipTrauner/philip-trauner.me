@@ -1,5 +1,6 @@
 from types import SimpleNamespace
 from pathlib import Path
+from urllib.parse import unquote
 
 from meh import Config, Option, ExceptionInConfigError
 from sanic import Sanic
@@ -21,13 +22,13 @@ PATH_HTML = "templates/index.min.html"
 config = Config()
 config += Option("address", "0.0.0.0")
 config += Option("port", 5000)
-config += Option("static_url", "")
+config += Option("static_url", "https://static.philip-trauner.me")
 
 config += Option("static_handler", False, comment="Serves static files")
 
-config += Option("blog_static_url", "")
-config += Option("blog_static_handler", False, comment="Serves static files for blog")
-config += Option("rss_base_url", "https://philip-trauner.me/blog/post/")
+config += Option("blog_static_url", "https://blog.philip-trauner.me")
+config += Option("rss_base_url", "https://philip-trauner.me/blog/post")
+config += Option("rss_url", "https://philip-trauner.me/blog/rss")
 
 config += Option("github_user", "PhilipTrauner")
 config += Option("enable_github", True)
@@ -47,23 +48,21 @@ except (IOError, ExceptionInConfigError):
     config = config.load(CONFIG_PATH)
 
 
-if config.static_url != "":
-    if config.static_url[-1] != "/":
-        config.static_url = config.static_url + "/"
-
-static_url = str(config.static_url)
-blog_static_url = str(config.blog_static_url)
+config.static_url = (
+    config.static_url + "/" if config.static_url[-1] != "/" else config.static_url
+)
 
 app = Sanic(NAME)
+
 
 if config.static_handler:
     app.static("/static", "./static")
     static_url = "/static/"
-
-
-if config.blog_static_handler:
     app.static("/blog/static/", "./posts/")
     blog_static_url = "/blog/static/"
+else:
+    static_url = str(config.static_url)
+    blog_static_url = str(config.blog_static_url)
 
 env = Environment(loader=FileSystemLoader("templates"))
 
@@ -90,11 +89,13 @@ github = (
     )
 )
 
-blog_ = Blog(Path("posts"), blog_static_url, config.rss_base_url)
+blog_ = Blog(Path("posts"), blog_static_url, config.rss_base_url, config.rss_url)
 
 
+# Wildcard route
 @app.route("/")
-async def home(request):
+@app.route("/<path>")
+async def home(request, **kwargs):
     return html(
         env.get_template("home.html").render(
             repos=github.repos,
@@ -102,13 +103,14 @@ async def home(request):
             static_url=static_url,
             playlists=spotify.playlists,
             posts=blog_.posts,
+            rss_url=config.rss_url,
         )
     )
 
 
 @app.route("/blog/post/<post>")
 async def blog_post(request, post):
-    post = blog_.find_post(post)
+    post = blog_.find_post(unquote(post))
 
     return html(
         env.get_template("blog-post.html").render(
@@ -120,7 +122,7 @@ async def blog_post(request, post):
 
 @app.route("/blog/tag/<tag>")
 async def blog_tag(request, tag):
-    posts = blog_.find_posts(tag)
+    posts = blog_.find_posts(unquote(tag))
 
     return html(
         env.get_template("blog-tag.html").render(
