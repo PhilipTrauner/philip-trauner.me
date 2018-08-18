@@ -46,17 +46,6 @@ h1, h2, h3, h4, h5, h6 {
 	height: 40px;
 }
 
-.top-border {
-	height: 5px;
-	background: black;
-	z-index: 1;
-	top: 0;
-	left: 0;
-	right: 0;
-	position: relative;
-	display: block;
-}
-
 .separator {
 	height: 0.2em;
 	border: 0;
@@ -116,12 +105,19 @@ h1, h2, h3, h4, h5, h6 {
 	margin-bottom: 12px;
 }
 
-@media screen and (max-width: 655px) {
+@media screen and (max-width: 960px) {
 	.content {
 		margin-left: 5vw;
 		margin-right: 5vw;
 	}
 
+	.separator {
+		margin-left: 5vw;
+		margin-right: 5vw;
+	}
+}
+
+@media screen and (max-width: 905px) {
 	.left-column {
 		float: none;
 		display: block;
@@ -130,14 +126,5 @@ h1, h2, h3, h4, h5, h6 {
 	.right-column {
 		float: none;
 		text-align: left;
-	}
-
-	.top-border {
-		display: none;
-	}
-
-	.separator {
-		margin-left: 5vw;
-		margin-right: 5vw;
 	}
 }
