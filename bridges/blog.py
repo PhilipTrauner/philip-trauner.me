@@ -119,6 +119,7 @@ class PostMetadata:
             description: str,
             section: str,
             author: str,
+            hidden: bool,
         ) -> None:
             self.date = date
             self.tags = tags
@@ -126,6 +127,7 @@ class PostMetadata:
             self.description = description
             self.section = section
             self.author = author
+            self.hidden = hidden
 
     def __new__(
         cls: Type["PostMetadata"], metadata_path: Path
@@ -139,6 +141,7 @@ class PostMetadata:
                 metadata_dict["description"],
                 metadata_dict["section"],
                 metadata_dict["author"],
+                metadata_dict.get("hidden", False)
             )
         return None
 
@@ -367,21 +370,22 @@ class Blog:
 
                 link = str(self.rss_base_url / post.name)
 
-                feed_items.append(
-                    Item(
-                        title=post.title,
-                        link=link,
-                        description=post.post_metadata.description,
-                        author=post.post_metadata.author,
-                        guid=Guid(link),
-                        pubDate=post.post_metadata.date.datetime,
+                if not post.post_metadata.hidden:
+                    feed_items.append(
+                        Item(
+                            title=post.title,
+                            link=link,
+                            description=post.post_metadata.description,
+                            author=post.post_metadata.author,
+                            guid=Guid(link),
+                            pubDate=post.post_metadata.date.datetime,
+                        )
                     )
-                )
 
-                for tag in post.post_metadata.tags:
-                    if not tag in tags:
-                        tags[tag] = []
-                    tags[tag].append(post)
+                    for tag in post.post_metadata.tags:
+                        if not tag in tags:
+                            tags[tag] = []
+                        tags[tag].append(post)
 
                 posts.append(post)
 
