@@ -4,14 +4,13 @@
 
 .back-arrow {
 	font-size: 1.5em;
-	top: 21px;
 	left: calc(20vw - 40px);
 	line-height: 30px;
 	position: absolute;
 	color: #0366d6;
 }
 
-@media screen and (max-width: 655px) {
+@media screen and (max-width: 960px) {
 	.back-arrow {
 		display: none;
 	}
