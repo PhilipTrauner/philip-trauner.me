@@ -84,7 +84,7 @@ header a:hover, .header-selected {
 }
 
 
-@media screen and (max-width: 655px) {
+@media screen and (max-width: 650px) {
 	header {
 		margin-bottom: 1em;
 	}
@@ -276,9 +276,5 @@ header a:hover, .header-selected {
 
 #dot-dot-dot p {
 	margin-top: 0.5em;
-}
-
-#about:target, #projects:target, #blog:target, #playlists:target, #dot-dot-dot:target {
-	display: block;
 }
 
