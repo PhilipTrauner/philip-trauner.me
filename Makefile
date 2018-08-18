@@ -1,3 +1,5 @@
+.PHONY: build install run
+
 build: node_modules static/github-markdown-base.css static/github.min.css
 	node_modules/uglify-js/bin/uglifyjs static/home.js -o static/home.min.js
 	node_modules/uglifycss/uglifycss static/base.css --output static/base.min.css
@@ -21,4 +23,7 @@ static/github-markdown-base.css:
 	node_modules/generate-github-markdown-css/cli.js > static/github-markdown-base.css
 
 static/github.min.css:
-	ln -srf node_modules/pygments-github-css/github.min.css static/
+	ln -sf $(realpath node_modules/pygments-github-css/github.min.css) static/
+
+run: build
+	poetry run python3 app.py
