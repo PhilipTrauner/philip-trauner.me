@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from re import compile as re_compile
 
 SYNTAX_HIGHLIGHTING = re_compile(r".markdown-body \.pl-\D.*\n([^}]*\n)*}")
@@ -9,9 +11,9 @@ FONT = re_compile(
 
 APPLY_REGEX = [SYNTAX_HIGHLIGHTING, FIRST_LAST_CHILDREN, OCTICONS, FONT]
 
-gh_md_content = open("static/github-markdown-base.css", "r").read()
+gh_md_content = open("static/css/github-markdown-base.css", "r").read()
 
 for regex in APPLY_REGEX:
     gh_md_content = regex.sub("", gh_md_content)
 
-open("static/github-markdown-processed.css", "w").write(gh_md_content)
+open("static/css/github-markdown-processed.css", "w").write(gh_md_content)

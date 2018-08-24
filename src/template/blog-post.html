@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% import "macros.jinja" as macros %}
+
+{% block head %}
+{{ super() }}
+{% if post %}
+	<meta property="og:type" content="article" />
+	<meta property="article:section" content="{{ post.post_metadata.section }}" />
+	<meta property="article:published_time" content="{{ post.post_metadata.date.iso_date }}" />
+	{% for tag in post.post_metadata.tags %}
+		<meta property="article:tag" content="{{ tag }}" />
+	{% endfor %}
+{% endif %}
+	<link href="{{ static_url }}style/github-markdown-processed.css" media="screen" rel="stylesheet" type="text/css" />
+	<link href="{{ static_url }}style/github.css" media="screen" rel="stylesheet" type="text/css" />
+	<link href="{{ static_url }}style/blog-post.css" media="screen" rel="stylesheet" type="text/css" />  
+{% endblock %}
+
+{% block prefix -%}
+{{ super() -}}
+{% if post -%}
+	{{ "article: http://ogp.me/ns/article#" -}}
+{% endif %}
+{% endblock %}
+
+{% block title %}
+{% if post -%}
+	{{ post.title -}}
+{% else %}
+	Post not found
+{% endif %}
+{% endblock %} 
+
+{% block description %}
+{% if post -%}
+	{{ post.post_metadata.description -}}
+{% else -%}
+	This post has either been swept under the rug or has never existed in the first place. Let your imagination go wild! :)
+{% endif %}
+{% endblock %}
+
+{% block image %}
+{% if post and post.images -%}
+	{{ post.images[0].url -}}
+{% else -%}
+	{{ super() -}}
+{% endif %}
+{% endblock %}
+
+{% block content %}
+{% if post -%}
+	<article class="content">
+		<div class="title-container">
+			<div class="heading-container">
+				<h1>{{ post.title }}</h1>
+				<a href="{{ '/blog#post-' + post.name }}">
+					<svg viewBox="0 0 15 15">
+						<path fill-rule="evenodd" d="M16 9l-3-3V2h-2v2L8 1 0 9h2l1 5c0 .55.45 1 1 1h8c.55 0 1-.45 1-1l1-5h2zm-4 5H9v-4H7v4H4L2.81 7.69 8 2.5l5.19 5.19L12 14z"></path>
+					</svg>
+				</a>
+				<a href="{{ rss_url }}">	
+					<svg viewBox="0 0 15 15">
+						<path fill-rule="evenodd" d="M2 13H0v-2c1.11 0 2 .89 2 2zM0 3v1a9 9 0 0 1 9 9h1C10 7.48 5.52 3 0 3zm0 4v1c2.75 0 5 2.25 5 5h1c0-3.31-2.69-6-6-6z"></path>
+					</svg>
+				</a>
+			</div>
+			<div class="date">{{ post.post_metadata.date.pretty_date }}</div>
+			{{ macros.tag_list(post) }}
+		</div>
+		<div class="markdown-body">
+			{{ post.markdown }}
+		</div>
+		<div class="license">
+			<span class="license-image">
+				<a href="{{ post.post_metadata.text_license.description_url }}">
+					<img src="{{ post.post_metadata.text_license.image_url }}" />
+				</a>
+			</span>
+			<span>
+				<a href="{{ post.post_metadata.text_license.description_url }}">
+				{{ post.post_metadata.text_license.name }}
+				</a>
+				{% if post.has_code %}
+					(only applies to text, code license: <a href="{{ post.post_metadata.code_license.description_url }}">{{ post.post_metadata.code_license.name }}</a>)
+				{% endif %}
+			</span>
+		</div>
+	</article>
+	<script src="https://utteranc.es/client.js"
+			repo="PhilipTrauner/philip-trauner.me"
+			issue-term="og:title"
+			crossorigin="anonymous"
+			async>
+	</script>
+{% else %}
+	{{ macros.warning("Could not find post :(") }}
+{% endif %}
+{% endblock %}

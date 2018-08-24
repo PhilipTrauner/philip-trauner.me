@@ -28,3 +28,13 @@
 	<span class="back-arrow" alt="Back">⇤</span>
 </a>
 {%- endmacro %}
+
+{% macro warning(text, is_content=True) -%}
+<div class="{% if is_content %}content{% endif %} warning">
+	<svg height="32" width="32" viewBox="0 0 16 16">
+		<use xlink:href="#warning"></use>
+	</svg>
+	<p>{{ text }}</p>
+</div>
+{%- endmacro %}
+
