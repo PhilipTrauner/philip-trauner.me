@@ -1,6 +1,7 @@
 from types import SimpleNamespace
 from pathlib import Path
 from urllib.parse import unquote
+from os import environ
 
 from meh import Config, Option, ExceptionInConfigError
 from sanic import Sanic
@@ -16,17 +17,16 @@ from bridges.spotify import Spotify, Playlist
 from bridges.blog import Blog
 
 NAME = "philip-trauner.me"
-CONFIG_PATH = "philip-trauner.me.cfg"
-DUMP_PATH = "github-dump.pickle"
+CONFIG_PATH = "app.cfg"
 
-PATH_HTML = "templates/index.min.html"
+IN_DOCKER = environ.get("IN_DOCKER", False)
 
 config = Config()
 config += Option("address", "0.0.0.0")
 config += Option("port", 5000)
-config += Option("static_url", "https://static.philip-trauner.me")
+config += Option("static_handler", False)
 
-config += Option("static_handler", False, comment="Serves static files")
+config += Option("static_url", "https://static.philip-trauner.me")
 
 config += Option("blog_static_url", "https://blog.philip-trauner.me")
 config += Option("rss_base_url", "https://philip-trauner.me/blog/post")
@@ -34,11 +34,13 @@ config += Option("rss_url", "https://philip-trauner.me/blog/rss")
 
 config += Option("github_user", "PhilipTrauner")
 config += Option("enable_github", True)
+config += Option("lipsum_github", False)
 
 config += Option("spotify_user", "philip.trauner")
 config += Option("spotify_client_id", None)
 config += Option("spotify_client_secret", None)
 config += Option("enable_spotify", True)
+config += Option("lipsum_spotify", False)
 
 config += Option("debug", False)
 config += Option("additional_repos", [], comment="Additional repos")
@@ -46,27 +48,27 @@ config += Option("additional_repos", [], comment="Additional repos")
 try:
     config = config.load(CONFIG_PATH)
 except (IOError, ExceptionInConfigError):
-    config.dump(CONFIG_PATH)
-    config = config.load(CONFIG_PATH)
-
-
-config.static_url = (
-    config.static_url + "/" if config.static_url[-1] != "/" else config.static_url
-)
+    if not IN_DOCKER:
+        config.dump(CONFIG_PATH)
+        config = config.load(CONFIG_PATH)
+    else:
+        print("Config files are not created automatically when running in Docker.")
+        exit(0)
 
 app = Sanic(NAME)
 
-
 if config.static_handler:
-    app.static("/static", "./static")
+    app.static("/static", "./dist")
     static_url = "/static/"
     app.static("/blog/static/", "./posts/")
     blog_static_url = "/blog/static/"
 else:
-    static_url = str(config.static_url)
-    blog_static_url = str(config.blog_static_url)
+    static_url = config.static_url
+    blog_static_url = config.blog_static_url
 
-env = Environment(loader=FileSystemLoader("templates"))
+env = Environment(
+    loader=FileSystemLoader("src/template"), trim_blocks=True, lstrip_blocks=True
+)
 
 spotify = (
     Spotify(
@@ -79,15 +81,25 @@ spotify = (
         ),
     )
     if config.enable_spotify
-    else SimpleNamespace(playlists=[Playlist("Human Music", "", "")])
+    else (
+        SimpleNamespace(playlists=[])
+        if not config.lipsum_spotify
+        else SimpleNamespace(playlists=[Playlist("Human Music", "", "")])
+    )
 )
 
 github = (
     GitHub(config.github_user, additional_repos=config.additional_repos)
     if config.enable_github
-    else SimpleNamespace(
-        repos=[Repo("", "Name", 0, 100, True, True, "Description", None, "Brainfuck")],
-        orgs=[Org("Name", "", "Description", None)],
+    else (
+        SimpleNamespace(repos=[], orgs=[])
+        if not config.lipsum_github
+        else SimpleNamespace(
+            repos=[
+                Repo("", "Name", 0, 100, True, True, "Description", None, "Brainfuck")
+            ],
+            orgs=[Org("Name", "", "Description", None)],
+        )
     )
 )
 
@@ -121,7 +133,10 @@ async def blog_post(request, post):
     return html(
         html_minify(
             env.get_template("blog-post.html").render(
-                static_url=static_url, blog_static_url=blog_static_url, post=post
+                static_url=static_url,
+                blog_static_url=blog_static_url,
+                post=post,
+                rss_url=config.rss_url,
             )
         ),
         status=200 if post else 404,
