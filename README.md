@@ -1,6 +1,11 @@
 <img align="right" src="http://static.philip-trauner.me/touch-icon.png"></img>
 # philip-trauner.me
 
+## Dependencies
+```bash
+sudo apt-get install imagemagick zopfli fswatch
+```
+
 ## Install
 ```bash
 git lfs install
