@@ -11,9 +11,9 @@ FONT = re_compile(
 
 APPLY_REGEX = [SYNTAX_HIGHLIGHTING, FIRST_LAST_CHILDREN, OCTICONS, FONT]
 
-gh_md_content = open("static/css/github-markdown-base.css", "r").read()
+gh_md_content = open("src/style/github-markdown-base.css", "r").read()
 
 for regex in APPLY_REGEX:
     gh_md_content = regex.sub("", gh_md_content)
 
-open("static/css/github-markdown-processed.css", "w").write(gh_md_content)
+open("src/style/github-markdown-processed.css", "w").write(gh_md_content)
