@@ -2,18 +2,11 @@
   "name": "philip-trauner.me",
   "version": "1.0.0",
   "description": "This is the code for my website. There's not much to see, really.",
-  "scripts": {
-  },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/PhilipTrauner/philip-trauner.me.git"
   },
-  "keywords": [
-    "homepage",
-    "website",
-    "Philip Trauner",
-    "arztpraxis"
-  ],
   "author": "Philip Trauner",
   "license": "MIT",
   "bugs": {
@@ -22,8 +15,10 @@
   "homepage": "https://github.com/PhilipTrauner/philip-trauner.me#readme",
   "dependencies": {
     "generate-github-markdown-css": "^2.2.0",
-    "uglify-js": "^2.8.21",
-    "uglifycss": "^0.0.29",
-    "pygments-github-css": "PhilipTrauner/pygments-github-css"
+    "pygments-github-css": "PhilipTrauner/pygments-github-css",
+    "uglify-js": "^3.4.7"
+  },
+  "devDependencies": {
+    "uglifycss": "^0.0.29"
   }
 }
