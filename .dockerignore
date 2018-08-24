@@ -1,0 +1,15 @@
+node_modules/
+__pycache__/
+src/image
+src/script
+src/style
+utils
+package.json
+yarn.lock
+README.md
+.git/
+app.cfg
+docker/
+.git*
+Makefile
+Dockerfile
