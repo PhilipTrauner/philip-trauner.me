@@ -1,7 +1,9 @@
 {
 	"date" : 1533942790,
 	"tags" : ["dell", "xps 15", "debian", "linux", "nvidia", "mac"],
-	"license" : "by-nc",
+	"license" : {
+		"text" : "by-nc"
+	},
 	"description" : "Detailed Dell XPS 15 (9570) review and postmortem from the perspective of a previous MacBook owner.",
 	"section" : "Laptop",
 	"author" : "Philip Trauner"

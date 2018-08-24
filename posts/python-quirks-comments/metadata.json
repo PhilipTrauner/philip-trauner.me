@@ -1,7 +1,10 @@
 {
 	"date" : 1499876928,
 	"tags" : ["python", "comments", "ast", "speed", "docstrings", "strings"],
-	"license" : "by-nc",
+	"license" : {
+		"text" : "by-nc", 
+		"code": "mit"
+	},
 	"description" : "Performance comparison of various Python comment types.",
 	"section" : "Python",
 	"author" : "Philip Trauner"
