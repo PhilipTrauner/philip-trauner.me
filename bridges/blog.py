@@ -1,6 +1,7 @@
 from pathlib import Path
 from threading import Lock
 from json import loads as json_loads
+from json.decoder import JSONDecodeError
 from datetime import datetime
 from re import compile as re_compile
 from typing import Callable, List, Optional, Tuple, Type, Dict, Any
@@ -28,10 +29,10 @@ ANSI_END = "\033[0m"
 LICENSE_VERSION = "4.0"
 
 LICENSE_BASE_URL = "https://creativecommons.org/licenses/"
-LICENSE_END_URL = "/%s/" % LICENSE_VERSION
+LICENSE_END_URL = "%s/" % LICENSE_VERSION
 
 LICENSE_IMAGE_BASE_URL = "https://licensebuttons.net/i/l/"
-LICENSE_IMAGE_END_URL = "/transparent/00/00/00/88x31.png"
+LICENSE_IMAGE_END_URL = "transparent/00/00/00/88x31.png"
 
 VALID_MARKDOWN = re_compile(r"^#.*$")
 FIND_IMAGE = re_compile(r"(?:!\[.*\]\(([^)]*)\))|(?:<img.*src=\"([^\"]*))")
@@ -53,42 +54,65 @@ def all_match_condition(function: Callable, iterable: List[str]) -> bool:
     return True
 
 
-def _license_urls(license_string) -> Tuple[str, str]:
+# https://stackoverflow.com/questions/36671077/one-line-exception-handling/36671208
+def safe_execute(default, exception, function, *args):
+    try:
+        return function(*args)
+    except exception:
+        return default
+
+
+def _cc_license_urls(license_string) -> Tuple[Url, Url]:
     return (
-        LICENSE_BASE_URL + license_string + LICENSE_END_URL,
-        LICENSE_IMAGE_BASE_URL + license_string + LICENSE_IMAGE_END_URL,
+        Url(LICENSE_BASE_URL) / license_string / LICENSE_END_URL,
+        Url(LICENSE_IMAGE_BASE_URL) / license_string / LICENSE_IMAGE_END_URL,
     )
 
 
 class License:
-    def __init__(self, name: str, description_url: str, image_url: str) -> None:
+    def __init__(self, name: str, description_url: Url) -> None:
         self.name = name
         self.description_url = description_url
+
+
+class TextLicense(License):
+    def __init__(self, name: str, description_url: Url, image_url: Url) -> None:
+        super().__init__(name, description_url)
         self.image_url = image_url
 
 
-LICENSES: Dict[str, License] = {
-    "by-nc-nd": License(
+class CodeLicense(License):
+    def __init__(self, name: str, description_url: Url) -> None:
+        super().__init__(name, description_url)
+
+
+TEXT_LICENSES: Dict[str, License] = {
+    "by-nc-nd": TextLicense(
         "Attribution-NonCommercial-NoDerivatives 4.0 International",
-        *_license_urls("by-nc-nd")
+        *_cc_license_urls("by-nc-nd")
     ),
-    "by-nc-sa": License(
+    "by-nc-sa": TextLicense(
         "Attribution-NonCommercial-ShareAlike 4.0 International",
-        *_license_urls("by-nc-sa")
+        *_cc_license_urls("by-nc-sa")
     ),
-    "by-nc": License(
-        "Attribution-NonCommercial 4.0 International", *_license_urls("by-nc")
+    "by-nc": TextLicense(
+        "Attribution-NonCommercial 4.0 International", *_cc_license_urls("by-nc")
     ),
-    "by-nd": License(
-        "Attribution-NoDerivatives 4.0 International", *_license_urls("by-nd")
+    "by-nd": TextLicense(
+        "Attribution-NoDerivatives 4.0 International", *_cc_license_urls("by-nd")
     ),
-    "by-sa": License(
-        "Attribution-ShareAlike 4.0 International", *_license_urls("by-sa")
+    "by-sa": TextLicense(
+        "Attribution-ShareAlike 4.0 International", *_cc_license_urls("by-sa")
     ),
-    "by": License("Attribution 4.0 International", *_license_urls("by")),
+    "by": TextLicense("Attribution 4.0 International", *_cc_license_urls("by")),
 }
 
-VALID_LICENSE_STRINGS: List[str] = list(LICENSES.keys())
+CODE_LICENSES: Dict[str, CodeLicense] = {
+    "mit": CodeLicense("MIT", Url("https://choosealicense.com/licenses/mit/"))
+}
+
+VALID_TEXT_LICENSE_STRINGS: List[str] = list(TEXT_LICENSES.keys())
+VALID_CODE_LICENSE_STRINGS: List[str] = list(CODE_LICENSES.keys())
 
 
 class Date:
@@ -101,12 +125,12 @@ class Date:
 
 class Image:
     class _Image:
-        def __init__(self, path: str, url: str) -> None:
+        def __init__(self, path: str, url: Url) -> None:
             self.path = path
             self.url = url
 
     def __new__(cls: Type["Image"], path: Path, image_base_url: Url):
-        return Image._Image(path.absolute(), str(image_base_url / path.name))
+        return Image._Image(path.absolute(), image_base_url / path.name)
 
 
 class PostMetadata:
@@ -115,7 +139,8 @@ class PostMetadata:
             self,
             date: Date,
             tags: List[str],
-            license: License,
+            text_license: TextLicense,
+            code_license: Optional[CodeLicense],
             description: str,
             section: str,
             author: str,
@@ -123,33 +148,41 @@ class PostMetadata:
         ) -> None:
             self.date = date
             self.tags = tags
-            self.license = license
+            self.text_license = text_license
+            self.code_license = code_license
             self.description = description
             self.section = section
             self.author = author
             self.hidden = hidden
 
     def __new__(
-        cls: Type["PostMetadata"], metadata_path: Path
+        cls: Type["PostMetadata"], metadata_path: Path, post_has_code: bool
     ) -> Optional["PostMetadata._PostMetadata"]:
-        if PostMetadata.valid(metadata_path):
+        if PostMetadata.valid(metadata_path, post_has_code):
             metadata_dict = json_loads(open(metadata_path, "r").read())
             return PostMetadata._PostMetadata(
                 Date(metadata_dict["date"]),
                 metadata_dict["tags"],
-                LICENSES[metadata_dict["license"]],
+                TEXT_LICENSES[metadata_dict["license"]["text"]],
+                CODE_LICENSES[metadata_dict["license"]["code"]]
+                if post_has_code
+                else None,
                 metadata_dict["description"],
                 metadata_dict["section"],
                 metadata_dict["author"],
-                metadata_dict.get("hidden", False)
+                metadata_dict.get("hidden", False),
             )
         return None
 
     @staticmethod
-    def valid(metadata_path: Path) -> bool:
-        metadata_dict = json_loads(open(metadata_path, "r").read())
+    def valid(metadata_path: Path, post_has_code: bool) -> bool:
+        metadata_dict = safe_execute(
+            None, JSONDecodeError, json_loads, open(metadata_path, "r").read()
+        )
+
         return (
-            "date" in metadata_dict
+            type(metadata_dict) is dict
+            and "date" in metadata_dict
             and type(metadata_dict["date"]) is int
             and metadata_dict["date"] > 0
             and "tags" in metadata_dict
@@ -158,7 +191,15 @@ class PostMetadata:
                 lambda element: type(element) is str, metadata_dict["tags"]
             )
             and "license" in metadata_dict
-            and metadata_dict["license"] in VALID_LICENSE_STRINGS
+            and "text" in metadata_dict["license"]
+            and metadata_dict["license"]["text"] in VALID_TEXT_LICENSE_STRINGS
+            and (
+                "license" in metadata_dict
+                and "code" in metadata_dict["license"]
+                and metadata_dict["license"]["code"] in VALID_CODE_LICENSE_STRINGS
+            )
+            if post_has_code
+            else True
             and "description" in metadata_dict
             and "section" in metadata_dict
             and "author" in metadata_dict
@@ -206,10 +247,12 @@ class Post:
             return Post._Post(
                 post_path.name,
                 post_content_split[0].lstrip("#").strip(),
-                PostMetadata(post_path / "metadata.json"),
+                PostMetadata(
+                    post_path / "metadata.json", Post.has_code(unmodified_post_content)
+                ),
                 Blog.MARKDOWN.render("\n".join(post_content_split[1:])),
                 images,
-                bool(HAS_CODE.search(unmodified_post_content)),
+                Post.has_code(unmodified_post_content),
             )
         else:
             print(
@@ -226,12 +269,20 @@ class Post:
         metadata_path = post_path / BLOG_METADATA
 
         valid_text = False
-        valid_metadata = metadata_path.exists() and PostMetadata.valid(metadata_path)
+        post_has_code = False
 
         if text_path.exists:
             split_text = open(text_path, "r").read().split("\n")
             if len(split_text) > 0:
                 valid_text = bool(VALID_MARKDOWN.match(split_text[0]))
+                # Required because code license is only necessary if post
+                # contains code
+                post_has_code = Post.has_code(open(text_path, "r").read())
+
+        # Metadata can be valid, even if the text is invalid
+        valid_metadata = metadata_path.exists() and PostMetadata.valid(
+            metadata_path, post_has_code
+        )
 
         return valid_text and valid_metadata
 
@@ -265,6 +316,10 @@ class Post:
                 )
 
         return images
+
+    @staticmethod
+    def has_code(post_content: str) -> bool:
+        return bool(HAS_CODE.search(post_content))
 
 
 class Blog:
