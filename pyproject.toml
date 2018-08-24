@@ -21,5 +21,4 @@ django-htmlmin = "^0.10.0"
 urlpath = "^1.1"
 
 [tool.poetry.dev-dependencies]
-monkeytype = "^18.5"
-black = "^18.3-alpha.0"
+
