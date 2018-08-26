@@ -1,9 +1,12 @@
+from __future__ import annotations
+
 from pathlib import Path
 from threading import Lock
 from json import loads as json_loads
 from json.decoder import JSONDecodeError
 from datetime import datetime
 from re import compile as re_compile
+from re import MULTILINE
 from typing import Callable, List, Optional, Tuple, Type, Dict, Any
 
 
@@ -22,6 +25,8 @@ from urlpath import URL as Url
 
 from rfeed import Feed, Item, Guid
 
+REGEX_TYPE = type(re_compile(""))
+
 WARNING_COLOR = "\033[33m"
 EMPHASIS_COLOR = "\033[35m"
 ANSI_END = "\033[0m"
@@ -35,12 +40,38 @@ LICENSE_IMAGE_BASE_URL = "https://licensebuttons.net/i/l/"
 LICENSE_IMAGE_END_URL = "transparent/00/00/00/88x31.png"
 
 VALID_MARKDOWN = re_compile(r"^#.*$")
-FIND_IMAGE = re_compile(r"(?:!\[.*\]\(([^)]*)\))|(?:<img.*src=\"([^\"]*))")
-IMAGE_REWRITE = [
+IMAGE_REWRITE: Tuple[REGEX_TYPE] = (
     re_compile(r"(<img.*src=\")([^\"]*)(.*)"),  # <img src="image.png" />
     re_compile(r"(!\[.*\]\()([^)]*)(\))"),  # ![](image.png)
-]
+)
+
+# Does not include blocks without language identifier
 HAS_CODE = re_compile(r"```\w+\n")
+IMAGE_HREF = re_compile(r"(?:!\[.*\]\(([^)]*)\))|(?:<img.*src=\"([^\"]*))")
+# Includes blocks without language identifier
+CODE_BLOCK = re_compile(r"```.*\n(((?:(?!```).)+\n)|\n)*```\n")
+IMAGE = re_compile(r"(<.*img[^>]*>)|(!\[[^\]]*\]\([^)]*\))")
+PARAGRAPH = re_compile(r"<p[^>]*>((?:(?!<\/p>).)|\n)*<\/p>")
+HEADING = re_compile(r"^#+.*$", MULTILINE)
+CAPTION = re_compile(r"<figcaption[^>]*>[^>]*>")
+
+READ_TIME_SPECIAL_TREATMENT = (PARAGRAPH, IMAGE, CODE_BLOCK, HEADING, CAPTION)
+
+READ_TIME_IMPACT: Dict[REGEX_TYPE, Tuple[float, float]] = {
+    # (Per occurence, Per line)
+    PARAGRAPH: (0.0, 0.0),
+    # 6 seconds for each image
+    IMAGE: (0.10, 0.0),
+    # Approximately 2 seconds per line
+    CODE_BLOCK: (0.0, 0.0333),
+    # Approximately 2 seconds per heading
+    HEADING: (0.0333, 0.0),
+    # 3 seconds per caption
+    CAPTION: (0.05, 0.0),
+}
+
+# https://blog.medium.com/read-time-and-you-bc2048ab620c
+READ_TIME_WORDS_PER_MINUTE = 275
 
 CONTENT_FOLDER = "content"
 BLOG_METADATA = "metadata.json"
@@ -55,14 +86,18 @@ def all_match_condition(function: Callable, iterable: List[str]) -> bool:
 
 
 # https://stackoverflow.com/questions/36671077/one-line-exception-handling/36671208
-def safe_execute(default, exception, function, *args):
+def safe_execute(default: Any, exception: Any, function: Callable, *args: Any):
     try:
         return function(*args)
     except exception:
         return default
 
 
-def _cc_license_urls(license_string) -> Tuple[Url, Url]:
+def index_from_pair(list: List, pair: Tuple[int, int]):
+    return list[pair[0] : pair[1]]
+
+
+def _cc_license_urls(license_string: str) -> Tuple[Url, Url]:
     return (
         Url(LICENSE_BASE_URL) / license_string / LICENSE_END_URL,
         Url(LICENSE_IMAGE_BASE_URL) / license_string / LICENSE_IMAGE_END_URL,
@@ -123,13 +158,20 @@ class Date:
         self.iso_date = self.datetime.strftime("%Y-%m-%d %H:%M:%S")
 
 
+class ReadTime:
+    def __init__(self, time: float, word_count: int) -> None:
+        self.time = time
+        self.word_count = word_count
+        self.pretty_time = "%.0f" % time
+
+
 class Image:
     class _Image:
         def __init__(self, path: str, url: Url) -> None:
             self.path = path
             self.url = url
 
-    def __new__(cls: Type["Image"], path: Path, image_base_url: Url):
+    def __new__(cls: Type[Image], path: Path, image_base_url: Url):
         return Image._Image(path.absolute(), image_base_url / path.name)
 
 
@@ -156,8 +198,8 @@ class PostMetadata:
             self.hidden = hidden
 
     def __new__(
-        cls: Type["PostMetadata"], metadata_path: Path, post_has_code: bool
-    ) -> Optional["PostMetadata._PostMetadata"]:
+        cls: Type[PostMetadata], metadata_path: Path, post_has_code: bool
+    ) -> Optional[PostMetadata._PostMetadata]:
         if PostMetadata.valid(metadata_path, post_has_code):
             metadata_dict = json_loads(open(metadata_path, "r").read())
             return PostMetadata._PostMetadata(
@@ -216,6 +258,7 @@ class Post:
             markdown: str,
             images: List[Image._Image],
             has_code: bool,
+            read_time: ReadTime,
         ) -> None:
             self.name = name
             self.title = title
@@ -223,10 +266,9 @@ class Post:
             self.markdown = markdown
             self.images = images
             self.has_code = has_code
+            self.read_time = read_time
 
-    def __new__(
-        cls: Type["Post"], post_path: Path, image_base_url: Url
-    ) -> "Post._Post":
+    def __new__(cls: Type[Post], post_path: Path, image_base_url: Url) -> Post._Post:
         if Post.valid(post_path):
             content_path = post_path / CONTENT_FOLDER
             image_base_url = image_base_url / post_path.name / CONTENT_FOLDER
@@ -248,11 +290,12 @@ class Post:
                 post_path.name,
                 post_content_split[0].lstrip("#").strip(),
                 PostMetadata(
-                    post_path / "metadata.json", Post.has_code(unmodified_post_content)
+                    post_path / BLOG_METADATA, Post.has_code(unmodified_post_content)
                 ),
                 Blog.MARKDOWN.render("\n".join(post_content_split[1:])),
                 images,
                 Post.has_code(unmodified_post_content),
+                ReadTime(*Post.read_time(unmodified_post_content)),
             )
         else:
             print(
@@ -305,7 +348,7 @@ class Post:
                 / Path(image_tuple[0] if image_tuple[0] else image_tuple[1]),
                 image_base_url,
             )
-            for image_tuple in FIND_IMAGE.findall(post_content)
+            for image_tuple in IMAGE_HREF.findall(post_content)
         ]
 
         for image in images:
@@ -320,6 +363,34 @@ class Post:
     @staticmethod
     def has_code(post_content: str) -> bool:
         return bool(HAS_CODE.search(post_content))
+
+    @staticmethod
+    def read_time(text: str) -> float:
+        time = 0.0
+
+        for regex in READ_TIME_SPECIAL_TREATMENT:
+            count = 0
+            lines = 0
+
+            for match in regex.finditer(text):
+                count += 1
+                lines += len(
+                    [
+                        line
+                        for line in index_from_pair(text, match.span()).split("\n")
+                        if line != ""
+                    ]
+                )
+
+            time += (
+                READ_TIME_IMPACT[regex][0] * count + READ_TIME_IMPACT[regex][1] * lines
+            )
+
+            text = regex.sub("", text)
+
+        word_count = len([word for word in text.split(" ") if word != ""])
+
+        return word_count / READ_TIME_WORDS_PER_MINUTE + time, word_count
 
 
 class Blog:
