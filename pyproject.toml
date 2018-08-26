@@ -7,7 +7,7 @@ authors = ["Philip Trauner <philip.trauner@arztpraxis.io>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "^3.6"
+python = "^3.7"
 Jinja2 = "^2.10"
 Meh = "^1.2"
 requests = "^2.19"
@@ -21,4 +21,3 @@ django-htmlmin = "^0.10.0"
 urlpath = "^1.1"
 
 [tool.poetry.dev-dependencies]
-
