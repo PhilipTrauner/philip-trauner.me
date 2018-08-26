@@ -114,7 +114,7 @@ blog_ = Blog(
 async def home(request, **kwargs):
     return html(
         html_minify(
-            env.get_template("home.html").render(
+            env.get_template("home.jinja").render(
                 repos=github.repos,
                 orgs=github.orgs,
                 static_url=static_url,
@@ -132,7 +132,7 @@ async def blog_post(request, post):
 
     return html(
         html_minify(
-            env.get_template("blog-post.html").render(
+            env.get_template("blog-post.jinja").render(
                 static_url=static_url,
                 blog_static_url=blog_static_url,
                 post=post,
@@ -149,7 +149,7 @@ async def blog_tag(request, tag):
 
     return html(
         html_minify(
-            env.get_template("blog-tag.html").render(
+            env.get_template("blog-tag.jinja").render(
                 static_url=static_url, posts=posts, tag=tag
             )
         ),
