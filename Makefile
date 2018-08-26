@@ -16,7 +16,9 @@ BLOG_IMAGES = $(wildcard posts/*/content/*.png)
 
 .PHONY: build install run optimize docker docker-run
 
-build: node_modules src/style/github-markdown-processed.css src/style/github.css dist $(MINIFIED_STYLE) $(MINIFIED_SCRIPT) $(MINIFIED_SOCIAL) $(MINIFIED_ICON)
+build: node_modules src/style/github-markdown-processed.css \
+	src/style/github.css dist $(MINIFIED_STYLE) $(MINIFIED_SCRIPT) \
+	$(MINIFIED_SOCIAL) $(MINIFIED_ICON) $(BLOG_IMAGES)
 
 $(DIST_DIR)/style/%.css: $(SRC_DIR)/style/%.css
 	mkdir -p $(dir $@)
@@ -28,21 +30,30 @@ $(DIST_DIR)/script/%.js: $(SRC_DIR)/script/%.js
 
 $(DIST_DIR)/image/social/%.png: $(SRC_DIR)/image/social/%.png
 	mkdir -p $(dir $@)
+ifeq ($(MODE),prod)
 	convert $< -resize 64x64 $@
 	zopflipng -y -m $@ $@
+else
+	cp $< $@
+endif
 
 $(DIST_DIR)/image/icon/%.png: $(SRC_DIR)/image/icon/%.png
 	mkdir -p $(dir $@)
 	cp $< $@
+ifeq ($(MODE),prod)
 	zopflipng -y -m $@ $@
+endif
 
-clean:
-	rm -r dist node_modules
-
-optimize:
+optimize: $(BLOG_IMAGES)
+ifeq ($(MODE),prod)	
 	for image in $(BLOG_IMAGES) ; do \
 		zopflipng -y $$image $$image ; \
+		touch $$image ; \
 	done
+endif	
+
+clean:
+	rm -rf dist node_modules
 
 install: pyproject.toml pyproject.lock
 	poetry install
@@ -69,8 +80,11 @@ watch:
 	poetry run python3 app.py &
 	fswatch -ro $(SRC_DIR) --event=Updated | xargs -n1 -I{} make build
 
-docker: build
-	docker build -t philiptrauner/philip-trauner.me:v1 .
+docker-build-prod:
+	docker build --build-arg mode=prod -t philiptrauner/philip-trauner.me:prod .
 
-docker-run: docker
-	docker run -p 5000:5000 -v $(realpath app.cfg):/app/app.cfg philiptrauner/philip-trauner.me:v1		
+docker-build-dev:
+	docker build --build-arg mode=dev -t philiptrauner/philip-trauner.me:dev .
+
+docker-run: docker-build-dev
+	docker run -p 5000:5000 -v $(realpath app.cfg):/app/app.cfg philiptrauner/philip-trauner.me:dev		
