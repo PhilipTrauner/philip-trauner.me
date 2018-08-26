@@ -24,22 +24,21 @@
 	margin-bottom: 4px;
 }
 
+.heading-container span {
+	min-width: 75px;
+	margin-left: 10px;
+}
+
 .heading-container h1 {
 	font-size: 2em;
 	line-height: 40px;
-	width: 90%;
-	display: inline-block;
+	width: 85%;
 }
 
 .heading-container svg {
 	width: 35px;
-	height: auto;
-	align-self: flex-start;
 }
 
-.heading-container svg:not(:last-child) {
-	margin-right: 5px;
-}
 
 .license {
 	vertical-align: middle;
@@ -79,5 +78,6 @@
 .utterances {
 	margin-left: 20vw;
 	margin-right: 20vw;
+	max-width: unset;
 	width: unset;
 }
