@@ -126,7 +126,7 @@ header a:hover, .header-selected {
 .about-greeting {
 	margin-left: -0.065em !important;
 	font-size: 2.8em;
-	font-weight: bold;
+	font-weight: normal;
 }
 
 #projects p {
@@ -163,9 +163,8 @@ header a:hover, .header-selected {
 	align-self: center;
 }
 
-.project-stars img {
-	padding-right: 0.2em;
-	vertical-align: 2%;
+.project-svg {
+	height: 16px;
 }
 
 .project-star-count {
@@ -175,6 +174,7 @@ header a:hover, .header-selected {
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
+	align-self: center;
 }
 
 .project-fork {
