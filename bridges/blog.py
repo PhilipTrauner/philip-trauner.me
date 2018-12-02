@@ -7,8 +7,13 @@ from json.decoder import JSONDecodeError
 from datetime import datetime
 from re import compile as re_compile
 from re import MULTILINE
-from typing import Callable, List, Optional, Tuple, Type, Dict, Any
-
+from datetime import time as _time
+from typing import Callable, List, Optional, Tuple, Type, Dict, Any, Union, Iterable
+from enum import Enum
+from functools import partial
+from dataclasses import dataclass
+from traceback import print_exception
+from sys import exc_info
 
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler as WatchdogFileSystemEventHandler
@@ -23,13 +28,22 @@ from pygments.formatters import html
 
 from urlpath import URL as Url
 
-from rfeed import Feed, Item, Guid
+from rfeed import Feed, Item, Guid, Category
+
+from voluptuous import Required, Schema, Range, All, Optional, MultipleInvalid
+from voluptuous import Any as VolAny
+
+from util import (
+    safe_execute,
+    capture_trace,
+    warning,
+    info,
+    all_match_condition,
+    index_range_from_pair,
+    traverse_collection,
+)
 
 REGEX_TYPE = type(re_compile(""))
-
-WARNING_COLOR = "\033[33m"
-EMPHASIS_COLOR = "\033[35m"
-ANSI_END = "\033[0m"
 
 LICENSE_VERSION = "4.0"
 
@@ -40,61 +54,43 @@ LICENSE_IMAGE_BASE_URL = "https://licensebuttons.net/i/l/"
 LICENSE_IMAGE_END_URL = "transparent/00/00/00/88x31.png"
 
 VALID_MARKDOWN = re_compile(r"^#.*$")
-IMAGE_REWRITE: Tuple[REGEX_TYPE] = (
+IMAGE_REWRITE: List[REGEX_TYPE] = [
     re_compile(r"(<img.*src=\")([^\"]*)(.*)"),  # <img src="image.png" />
     re_compile(r"(!\[.*\]\()([^)]*)(\))"),  # ![](image.png)
-)
+]
 
-# Does not include blocks without language identifier
+# Excludes blocks without language identifier
 HAS_CODE = re_compile(r"```\w+\n")
 IMAGE_HREF = re_compile(r"(?:!\[.*\]\(([^)]*)\))|(?:<img.*src=\"([^\"]*))")
 # Includes blocks without language identifier
 CODE_BLOCK = re_compile(r"```.*\n(((?:(?!```).)+\n)|\n)*```\n")
 IMAGE = re_compile(r"(<.*img[^>]*>)|(!\[[^\]]*\]\([^)]*\))")
-PARAGRAPH = re_compile(r"<p[^>]*>((?:(?!<\/p>).)|\n)*<\/p>")
-HEADING = re_compile(r"^#+.*$", MULTILINE)
 CAPTION = re_compile(r"<figcaption[^>]*>[^>]*>")
+DEFAULT = re_compile(r".*")
 
-READ_TIME_SPECIAL_TREATMENT = (PARAGRAPH, IMAGE, CODE_BLOCK, HEADING, CAPTION)
+WORDS_PER_MINUTE = 275
 
-READ_TIME_IMPACT: Dict[REGEX_TYPE, Tuple[float, float]] = {
-    # (Per occurence, Per line)
-    PARAGRAPH: (0.0, 0.0),
-    # 6 seconds for each image
-    IMAGE: (0.10, 0.0),
-    # Approximately 2 seconds per line
-    CODE_BLOCK: (0.0, 0.0333),
-    # Approximately 2 seconds per heading
-    HEADING: (0.0333, 0.0),
-    # 3 seconds per caption
-    CAPTION: (0.05, 0.0),
+READ_TIME_IMPACT: Dict[REGEX_TYPE, Tuple[float, float, float]] = {
+    # (Per occurence, Per line, Per word)
+    IMAGE: (8.0, 0.0, 0.0),
+    # There does not appear to be any code reading time statistics
+    # (which makes total sense), so this figure is completely made up
+    CODE_BLOCK: (0.0, 3.0, 0.0),
+    CAPTION: (3.0, 0.0, 0.0),
+    # https://blog.medium.com/read-time-and-you-bc2048ab620c
+    DEFAULT: (0.0, 0.0, 1.0 / (WORDS_PER_MINUTE / 60.0)),
 }
 
-# https://blog.medium.com/read-time-and-you-bc2048ab620c
-READ_TIME_WORDS_PER_MINUTE = 275
+READ_TIME_IMPACT_NAME: Dict[REGEX_TYPE, Tuple[str, str]] = {
+    IMAGE: ("Image", "Images"),
+    CODE_BLOCK: ("Code Block", "Code Blocks"),
+    CAPTION: ("Caption", "Captions"),
+    DEFAULT: ("Text", "Text"),
+}
 
 CONTENT_FOLDER = "content"
 BLOG_METADATA = "metadata.json"
 BLOG_TEXT = "text.md"
-
-
-def all_match_condition(function: Callable, iterable: List[str]) -> bool:
-    for element in iterable:
-        if not function(element):
-            return False
-    return True
-
-
-# https://stackoverflow.com/questions/36671077/one-line-exception-handling/36671208
-def safe_execute(default: Any, exception: Any, function: Callable, *args: Any):
-    try:
-        return function(*args)
-    except exception:
-        return default
-
-
-def index_from_pair(list: List, pair: Tuple[int, int]):
-    return list[pair[0] : pair[1]]
 
 
 def _cc_license_urls(license_string: str) -> Tuple[Url, Url]:
@@ -104,10 +100,34 @@ def _cc_license_urls(license_string: str) -> Tuple[Url, Url]:
     )
 
 
+@dataclass
+class Validator:
+    callable_: Callable
+    error: str = ""
+
+
+@dataclass
+class ValidationResult:
+    success: bool
+    error: Optional[str] = None
+    exception: Optional[Any] = None
+
+
+def validate(validators: List[Validator]) -> Tuple[bool, str]:
+    for validator in validators:
+        try:
+            if not validator.callable_():
+                return ValidationResult(False, validator.error)
+        except Exception as e:
+            capture_trace()
+            return ValidationResult(False, exception=e)
+    return ValidationResult(True)
+
+
+@dataclass
 class License:
-    def __init__(self, name: str, description_url: Url) -> None:
-        self.name = name
-        self.description_url = description_url
+    name: str
+    description_url: Url
 
 
 class TextLicense(License):
@@ -150,6 +170,21 @@ VALID_TEXT_LICENSE_STRINGS: List[str] = list(TEXT_LICENSES.keys())
 VALID_CODE_LICENSE_STRINGS: List[str] = list(CODE_LICENSES.keys())
 
 
+@dataclass
+class Author:
+    name: str
+    email: str
+
+    def __eq__(self, other):
+        return type(other) is Author and other.__dict__ == self.__dict__
+
+    def __repr__(self):
+        return "%s <%s>" % (self.name, self.email)
+
+    def __str__(self):
+        return self.name
+
+
 class Date:
     def __init__(self, unix_date: int) -> None:
         self.unix_date = unix_date
@@ -158,124 +193,201 @@ class Date:
         self.iso_date = self.datetime.strftime("%Y-%m-%d %H:%M:%S")
 
 
+# Wrapper class around datetime.time
+class Time:
+    class Format(Enum):
+        BLOG = 1
+
+    def __init__(self, *args, **kwargs):
+        self._time = _time(*args, **kwargs)
+
+    @staticmethod
+    def from_seconds(number: Union[int, float]):
+        hours = divmod(number, 3600)
+        minutes = divmod(hours[1], 60)
+        seconds = minutes[1]
+        microseconds = (
+            ((number - int(number)) * 1000000) if type(number) is float else 0
+        )
+
+        return Time(int(hours[0]), int(minutes[0]), int(seconds), int(microseconds))
+
+    def format_(self, format_=Format.BLOG) -> Union[str, None]:
+        def round_minute(minute, second):
+            return minute if second < 30 else minute + 1
+
+        def round_hour(hour, minute):
+            return round_minute(hour, minute)
+
+        if format_ == Time.Format.BLOG:
+            if self._time.minute == 0 and self._time.hour == 0:
+                return "%i %s" % (
+                    self._time.second,
+                    "Second" if self._time.second == 1 else "Seconds",
+                )
+            elif self._time.hour == 0 and self._time.minute > 0:
+                minute = round_minute(self._time.minute, self._time.second)
+                return "%i %s" % (minute, "Minute" if minute == 1 else "Minutes")
+            elif self._time.hours > 0:
+                hour = round_hour(self._time.hour, self._time.minute)
+                minute = round_minute(self._time.minute, self._time.second)
+                return "%i %s %i %s" % (
+                    hour,
+                    "Hour" if hour == 1 else "Hours",
+                    minute,
+                    "Minute" if minute == 1 else "Minutes",
+                )
+            return "∞ Millennia"
+        return None
+
+    def __getattr__(self, attr):
+        if hasattr(self._time, attr):
+            return getattr(self._time, attr)
+        raise AttributeError
+
+    def __add__(self, other):
+        if type(other) in (Time, _time):
+            # The default constructor of datetime.time enforces ranges for
+            # minutes, seconds, and milliseconds
+            return Time.from_seconds(
+                (self._time.hour + other.hour) * 3600
+                + (self._time.minute + other.minute) * 60
+                + (self._time.second + other.second)
+                + (self._time.microsecond + other.microsecond) / 1000000
+            )
+        return NotImplemented
+
+    def __repr__(self):
+        return self.format_()
+
+    def __str__(self):
+        return self.format_()
+
+
 class ReadTime:
-    def __init__(self, time: float, word_count: int) -> None:
-        self.time = time
+    def __init__(
+        self,
+        time_breakdown: Dict[REGEX_TYPE, Tuple[int, Time]],
+        overall_time: Time,
+        word_count: int,
+    ) -> None:
+        self.time_breakdown: Dict[REGEX_TYPE, Tuple[int, Time]] = time_breakdown
+        self.overall_time = overall_time
         self.word_count = word_count
-        self.pretty_time = "%.0f" % time
+
+        self.pretty_time_breakdown = {
+            READ_TIME_IMPACT_NAME[regex][0]
+            if time_breakdown[regex][0] <= 1
+            else READ_TIME_IMPACT_NAME[regex][1]: time_breakdown[regex][1].format_(
+                Time.Format.BLOG
+            )
+            for regex in time_breakdown
+            if time_breakdown[regex][0] != 0
+        }
+        self.pretty_overall_time = self.overall_time.format_(Time.Format.BLOG)
 
 
 class Image:
+    @dataclass
     class _Image:
-        def __init__(self, path: str, url: Url) -> None:
-            self.path = path
-            self.url = url
+        path: str
+        url: Url
 
     def __new__(cls: Type[Image], path: Path, image_base_url: Url):
         return Image._Image(path.absolute(), image_base_url / path.name)
 
 
 class PostMetadata:
+    TEXT_LICENSE = {"text": VolAny(*VALID_TEXT_LICENSE_STRINGS)}
+    CODE_LICENSE = {"code": VolAny(*VALID_CODE_LICENSE_STRINGS)}
+    BASE_VALIDATION_SCHEMA = {
+        "description": str,
+        "section": str,
+        "author": str,
+        "date": All(int, Range(min=1)),
+        "tags": [str],
+        Optional("hidden", default=False): bool,
+    }
+    VALIDATION_SCHEMA_WITHOUT_CODE = Schema(
+        {**BASE_VALIDATION_SCHEMA, "license": {**TEXT_LICENSE}}, required=True
+    )
+    VALIDATION_SCHEMA_WITH_CODE = Schema(
+        {**BASE_VALIDATION_SCHEMA, "license": {**TEXT_LICENSE, **CODE_LICENSE}},
+        required=True,
+    )
+
+    @dataclass
     class _PostMetadata:
-        def __init__(
-            self,
-            date: Date,
-            tags: List[str],
-            text_license: TextLicense,
-            code_license: Optional[CodeLicense],
-            description: str,
-            section: str,
-            author: str,
-            hidden: bool,
-        ) -> None:
-            self.date = date
-            self.tags = tags
-            self.text_license = text_license
-            self.code_license = code_license
-            self.description = description
-            self.section = section
-            self.author = author
-            self.hidden = hidden
+        date: Date
+        tags: List[str]
+        text_license: TextLicense
+        code_license: Optional[CodeLicense]
+        description: str
+        section: str
+        author: str
+        hidden: bool
 
     def __new__(
         cls: Type[PostMetadata], metadata_path: Path, post_has_code: bool
     ) -> Optional[PostMetadata._PostMetadata]:
-        if PostMetadata.valid(metadata_path, post_has_code):
-            metadata_dict = json_loads(open(metadata_path, "r").read())
-            return PostMetadata._PostMetadata(
-                Date(metadata_dict["date"]),
-                metadata_dict["tags"],
-                TEXT_LICENSES[metadata_dict["license"]["text"]],
-                CODE_LICENSES[metadata_dict["license"]["code"]]
+
+        try:
+            metadata_dict = (
+                PostMetadata.VALIDATION_SCHEMA_WITH_CODE
                 if post_has_code
-                else None,
-                metadata_dict["description"],
-                metadata_dict["section"],
-                metadata_dict["author"],
-                metadata_dict.get("hidden", False),
-            )
-        return None
+                else PostMetadata.VALIDATION_SCHEMA_WITHOUT_CODE
+            )(json_loads(open(metadata_path, "r").read()))
+        except MultipleInvalid as e:
+            warning("Validation of '%s' failed: %s" % (metadata_path, str(e)))
+            return None
+
+        return PostMetadata._PostMetadata(
+            Date(metadata_dict["date"]),
+            metadata_dict["tags"],
+            TEXT_LICENSES[metadata_dict["license"]["text"]],
+            CODE_LICENSES[metadata_dict["license"]["code"]] if post_has_code else None,
+            metadata_dict["description"],
+            metadata_dict["section"],
+            metadata_dict["author"],
+            metadata_dict.get("hidden", False),
+        )
 
     @staticmethod
     def valid(metadata_path: Path, post_has_code: bool) -> bool:
-        metadata_dict = safe_execute(
-            None, JSONDecodeError, json_loads, open(metadata_path, "r").read()
-        )
+        try:
+            (
+                PostMetadata.VALIDATION_SCHEMA_WITH_CODE
+                if post_has_code
+                else PostMetadata.VALIDATION_SCHEMA_WITHOUT_CODE
+            )(json_loads(open(metadata_path, "r").read()))
+        except MultipleInvalid as e:
+            warning("Validation of '%s' failed: %s" % (metadata_path, str(e)))
+            return False
 
-        return (
-            type(metadata_dict) is dict
-            and "date" in metadata_dict
-            and type(metadata_dict["date"]) is int
-            and metadata_dict["date"] > 0
-            and "tags" in metadata_dict
-            and type(metadata_dict["tags"]) is list
-            and all_match_condition(
-                lambda element: type(element) is str, metadata_dict["tags"]
-            )
-            and "license" in metadata_dict
-            and "text" in metadata_dict["license"]
-            and metadata_dict["license"]["text"] in VALID_TEXT_LICENSE_STRINGS
-            and (
-                "license" in metadata_dict
-                and "code" in metadata_dict["license"]
-                and metadata_dict["license"]["code"] in VALID_CODE_LICENSE_STRINGS
-            )
-            if post_has_code
-            else True
-            and "description" in metadata_dict
-            and "section" in metadata_dict
-            and "author" in metadata_dict
-        )
+        return True
 
 
 class Post:
+    @dataclass
     class _Post:
-        def __init__(
-            self,
-            name: str,
-            title: str,
-            post_metadata: PostMetadata._PostMetadata,
-            markdown: str,
-            images: List[Image._Image],
-            has_code: bool,
-            read_time: ReadTime,
-        ) -> None:
-            self.name = name
-            self.title = title
-            self.post_metadata = post_metadata
-            self.markdown = markdown
-            self.images = images
-            self.has_code = has_code
-            self.read_time = read_time
+        name: str
+        title: str
+        post_metadata: PostMetadata._PostMetadata
+        markdown: str
+        images: List[Image._Image]
+        has_code: bool
+        read_time: ReadTime
 
-    def __new__(cls: Type[Post], post_path: Path, image_base_url: Url) -> Post._Post:
-        if Post.valid(post_path):
+    def __new__(
+        cls: Type[Post], post_path: Path, image_base_url: Url, validated: bool = False
+    ) -> Optional[Post._Post]:
+        if validated or Post.valid(post_path):
             content_path = post_path / CONTENT_FOLDER
             image_base_url = image_base_url / post_path.name / CONTENT_FOLDER
 
             unmodified_post_content = open(post_path / BLOG_TEXT, "r").read()
 
-            images = []
+            images: List[Image] = []
             if content_path.is_dir():
                 images = Post.find_images(
                     unmodified_post_content, content_path, image_base_url
@@ -298,10 +410,7 @@ class Post:
                 ReadTime(*Post.read_time(unmodified_post_content)),
             )
         else:
-            print(
-                "%sWARNING%s: Validation of '%s' failed!"
-                % (WARNING_COLOR, ANSI_END, post_path)
-            )
+            return None
 
     def __repr__(self) -> str:
         return '<Post title="%s" name="%s" id=%s>' % (self.title, self.name, id(self))
@@ -314,18 +423,38 @@ class Post:
         valid_text = False
         post_has_code = False
 
-        if text_path.exists:
-            split_text = open(text_path, "r").read().split("\n")
-            if len(split_text) > 0:
-                valid_text = bool(VALID_MARKDOWN.match(split_text[0]))
-                # Required because code license is only necessary if post
-                # contains code
-                post_has_code = Post.has_code(open(text_path, "r").read())
-
-        # Metadata can be valid, even if the text is invalid
-        valid_metadata = metadata_path.exists() and PostMetadata.valid(
-            metadata_path, post_has_code
+        validation_result = validate(
+            [
+                Validator(
+                    partial(lambda text_path: text_path.exists, text_path),
+                    "path to post does not exist",
+                ),
+                Validator(
+                    partial(
+                        lambda text_path: bool(
+                            VALID_MARKDOWN.match(
+                                open(text_path, "r").read().split("\n")[0]
+                            )
+                        ),
+                        text_path,
+                    ),
+                    "post has no heading",
+                ),
+            ]
         )
+
+        if validation_result.success:
+            valid_text = True
+            post_has_code = Post.has_code(open(text_path, "r").read())
+
+            # Metadata can be valid, even if the text is invalid
+            valid_metadata = metadata_path.exists() and PostMetadata.valid(
+                metadata_path, post_has_code
+            )
+        else:
+            warning(
+                "Validation of '%s' failed: %s" % (post_path, validation_result.error)
+            )
 
         return valid_text and valid_metadata
 
@@ -353,10 +482,7 @@ class Post:
 
         for image in images:
             if not image.path.is_file():
-                print(
-                    "%sWARNING%s: '%s' does not exist!"
-                    % (WARNING_COLOR, ANSI_END, image.path)
-                )
+                warning("'%s' does not exist!" % (image.path))
 
         return images
 
@@ -365,32 +491,38 @@ class Post:
         return bool(HAS_CODE.search(post_content))
 
     @staticmethod
-    def read_time(text: str) -> float:
-        time = 0.0
+    def read_time(post_content: str) -> Tuple[Dict[REGEX_TYPE, Tuple[int, Time]], Time]:
+        overall_time = Time()
+        time_breakdown = {}
 
-        for regex in READ_TIME_SPECIAL_TREATMENT:
+        # 3.7: Dictionary order is guaranteed to be insertion order
+        for regex in READ_TIME_IMPACT.keys():
             count = 0
             lines = 0
+            words = 0
 
-            for match in regex.finditer(text):
+            for match in regex.finditer(post_content):
+                text = index_range_from_pair(post_content, match.span())
+
                 count += 1
-                lines += len(
-                    [
-                        line
-                        for line in index_from_pair(text, match.span()).split("\n")
-                        if line != ""
-                    ]
-                )
+                # Don't include empty lines
+                lines += len([line for line in text.split("\n") if line != ""])
+                words += len(text.split(" "))
 
-            time += (
-                READ_TIME_IMPACT[regex][0] * count + READ_TIME_IMPACT[regex][1] * lines
+            time_breakdown[regex] = (
+                count,
+                Time.from_seconds(
+                    READ_TIME_IMPACT[regex][0] * count
+                    + READ_TIME_IMPACT[regex][1] * lines
+                    + READ_TIME_IMPACT[regex][2] * words
+                ),
             )
 
-            text = regex.sub("", text)
+            overall_time += time_breakdown[regex][1]
 
-        word_count = len([word for word in text.split(" ") if word != ""])
+            post_content = regex.sub("", post_content)
 
-        return word_count / READ_TIME_WORDS_PER_MINUTE + time, word_count
+        return time_breakdown, overall_time, words
 
 
 class Blog:
@@ -403,7 +535,7 @@ class Blog:
             return highlight(code, lexer, formatter)
 
     class _FileSystemEventHandler(WatchdogFileSystemEventHandler):
-        def __init__(self, method: Callable):
+        def __init__(self, method: Callable) -> None:
             self.method = method
 
         def on_any_event(self, event: Any):
@@ -412,124 +544,158 @@ class Blog:
     MARKDOWN = MistuneMarkdown(renderer=_HighlightRenderer())
 
     def __init__(
-        self, path: Path, image_base_url: Url, rss_base_url: Url, rss_url: Url
+        self,
+        base_path: Path,
+        image_base_url: Url,
+        rss_title: str,
+        rss_description: str,
+        rss_language: str,
+        rss_base_url: Url,
+        rss_url: Url,
     ) -> None:
-        self.path = path
+        self.base_path = base_path
         self.image_base_url = image_base_url
+        self.rss_title = rss_title
+        self.rss_description = rss_description
+        self.rss_language = rss_language
         self.rss_base_url = rss_base_url
         self.rss_url = rss_url
 
+        self.post_path = base_path / "post"
+
         self.observer = Observer()
         self.observer.schedule(
-            Blog._FileSystemEventHandler(self.__refresh_posts),
-            str(path.absolute()),
+            Blog._FileSystemEventHandler(self.__refresh),
+            str(self.post_path.absolute()),
             recursive=True,
         )
+
+        self._posts: List[Post] = []
+        self._tags: Dict[str, List[Post]] = {}
+        self._authors: Dict[Author, List[Post]] = {}
+        self._rss: str = ""
+
+        self.lock = Lock()
+
+        self.__refresh()
+
         self.observer.start()
-
-        self._posts = []
-        self._tags = {}
-        self._rss = ""
-
-        self.posts_lock = Lock()
-
-        self.__refresh_posts()
 
     def find_post(self, name: str) -> Optional[Post._Post]:
         post = None
 
-        self.posts_lock.acquire()
+        self.lock.acquire()
         for post_ in self._posts:
             if post_.name == name:
                 post = post_
                 break
-        self.posts_lock.release()
+        self.lock.release()
 
         return post
 
-    def find_posts(self, tag: str) -> List[Post._Post]:
+    def find_posts_by_tag(self, tag: str) -> List[Post._Post]:
         posts = []
 
-        self.posts_lock.acquire()
+        self.lock.acquire()
         for post_ in self._posts:
             if tag in post_.post_metadata.tags:
                 posts.append(post_)
-        self.posts_lock.release()
+        self.lock.release()
 
         return posts
 
     @property
     def posts(self) -> List[Post._Post]:
-        self.posts_lock.acquire()
+        self.lock.acquire()
         posts = self._posts[:]
-        self.posts_lock.release()
+        self.lock.release()
 
-        return self._posts
+        return posts
 
     @property
     def tags(self) -> Dict[str, List[Post._Post]]:
-        self.posts_lock.acquire()
+        self.lock.acquire()
         tags = self._tags.copy()
-        self.posts_lock.release()
+        self.lock.release()
 
-        return self._tags
+        return tags
+
+    @property
+    def authors(self) -> Dict[str, List[Post._Post]]:
+        self.lock.acquire()
+        authors = self._authors.copy()
+        self.lock.release()
+
+        return authors
 
     @property
     def rss(self) -> str:
-        self.posts_lock.acquire()
+        self.lock.acquire()
         rss = self._rss
-        self.posts_lock.release()
+        self.lock.release()
 
         return rss
 
-    def __refresh_posts(self) -> None:
-        print("%sINFO%s: Refreshing!" % (EMPHASIS_COLOR, ANSI_END))
+    def __refresh(self) -> None:
+        info("Refreshing!")
 
         posts = []
         tags = {}
+        authors = {}
 
         feed_items = []
 
-        for folder in self.path.iterdir():
-            if folder.is_dir() and Post.valid(folder):
+        for folder in self.post_path.iterdir():
+            if folder.is_dir():
                 post = Post(folder, self.image_base_url)
 
-                link = str(self.rss_base_url / post.name)
+                # To-Do: Use in-line assignment once Python 3.8 rolls around
+                if post is not None:
+                    link = str(self.rss_base_url / post.name)
 
-                if not post.post_metadata.hidden:
-                    feed_items.append(
-                        Item(
-                            title=post.title,
-                            link=link,
-                            description=post.post_metadata.description,
-                            author=post.post_metadata.author,
-                            guid=Guid(link),
-                            pubDate=post.post_metadata.date.datetime,
+                    if not post.post_metadata.hidden:
+                        feed_items.append(
+                            Item(
+                                title=post.title,
+                                link=link,
+                                description=post.post_metadata.description,
+                                # author=post.post_metadata.author.email,
+                                guid=Guid(link),
+                                pubDate=post.post_metadata.date.datetime,
+                                categories=[
+                                    Category(tag) for tag in post.post_metadata.tags
+                                ],
+                            )
                         )
-                    )
 
-                    for tag in post.post_metadata.tags:
-                        if not tag in tags:
-                            tags[tag] = []
-                        tags[tag].append(post)
+                        for tag in post.post_metadata.tags:
+                            if not tag in tags:
+                                tags[tag] = []
+                            tags[tag].append(post)
 
-                posts.append(post)
+                        author = post.post_metadata.author
+                        if not author in authors:
+                            authors[author] = []
+                        authors[author].append(post)
+
+                    posts.append(post)
 
         feed = Feed(
-            title="Philip Trauner",
+            title=self.rss_title,
             link=self.rss_url,
-            description="",
-            language="en-US",
+            description=self.rss_description,
+            language=self.rss_language,
             lastBuildDate=datetime.now(),
             items=feed_items,
         )
 
-        self.posts_lock.acquire()
+        self.lock.acquire()
 
         self._posts = sorted(
             posts, key=lambda post: post.post_metadata.date.unix_date, reverse=True
         )
         self._tags = tags
+        self._authors = authors
         self._rss = feed.rss()
 
-        self.posts_lock.release()
+        self.lock.release()
