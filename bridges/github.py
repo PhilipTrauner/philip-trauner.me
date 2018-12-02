@@ -105,10 +105,10 @@ class GitHub:
         self.disable_fetch = False
         self.additional_repos = additional_repos
 
-        self._repos = []
-        self._orgs = []
-        self.repo_last_retrieve = None
-        self.org_last_retrieve = None
+        self._repos: List[Repo] = []
+        self._orgs: List[Org] = []
+        self.repo_last_retrieve: float = -1.0
+        self.org_last_retrieve: float = -1.0
 
     @property
     def repos(self) -> List[Repo]:

@@ -22,15 +22,15 @@ class Spotify:
         spotify: Spotipy,
         refresh_delay: int = 3600,
         disable_fetch: bool = False,
-    ):
+    ) -> None:
         self.user = user
         self.sp = spotify
 
         self.refresh_delay = refresh_delay
         self.disable_fetch = False
 
-        self._playlists = []
-        self.last_retrieve = None
+        self._playlists: List[Playlist] = []
+        self.last_retrieve: float = -1.0
 
     @property
     def playlists(self) -> List[Playlist]:
