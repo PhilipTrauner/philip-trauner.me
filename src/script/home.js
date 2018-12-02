@@ -53,7 +53,7 @@ function processPath(path, hash, causedByPop) {
   paths[path][0].classList = ['content'];
 
   // Set title to be able to distinguish paths in history
-  document.title = paths[path][2] + ' - Philip Trauner';
+  document.title = 'Philip Trauner - ' + paths[path][2];
 
   for (var pathId = 0; pathId < pathsKeys.length; pathId++) {
     if (pathsKeys[pathId] !== path) {
