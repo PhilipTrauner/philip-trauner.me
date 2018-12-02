@@ -4,7 +4,7 @@ upstream app {
 
 server {
 	# Reverse Proxy server
-	listen 80;
+	listen 5000;
 	server_name ${NGINX_SERVER_NAME};
 
 	location / {
@@ -19,14 +19,14 @@ server {
 
 server {
 	# Static server
-	listen 80;
+	listen 5001;
 	server_name ${NGINX_STATIC_SUBDOMAIN}.${NGINX_SERVER_NAME};
 	root /static/dist;
 }
 
 server {
 	# Blog content server
-	listen 80;
+	listen 5002;
 	server_name ${NGINX_BLOG_SUBDOMAIN}.${NGINX_SERVER_NAME};
 	root /static/blog/post;
 }
