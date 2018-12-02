@@ -15,7 +15,9 @@ services:
       - dist:/static/dist:ro
       - ./docker/default.template:/tmp/default.template:ro
     ports:
-      - ${PORT}:80
+      - ${APP_PORT}:5000
+      - ${STATIC_PORT}:5001
+      - ${BLOG_PORT}:5002
     links:
       - app:app
     env_file: env/app-env
