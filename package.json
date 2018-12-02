@@ -14,11 +14,11 @@
   },
   "homepage": "https://github.com/PhilipTrauner/philip-trauner.me#readme",
   "dependencies": {
-    "generate-github-markdown-css": "^2.2.0",
-    "pygments-github-css": "PhilipTrauner/pygments-github-css",
-    "uglify-js": "^3.4.7"
+    "pygments-github-css": "PhilipTrauner/pygments-github-css"
   },
   "devDependencies": {
+    "generate-github-markdown-css": "^2.2.0",
+    "uglify-js": "^3.4.7",
     "uglifycss": "^0.0.29"
   }
 }
