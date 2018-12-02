@@ -1,3 +1,8 @@
+THIS := $(lastword $(MAKEFILE_LIST))
+
+MODE ?= dev
+VALID_MODES = dev prod
+
 SRC_DIR = src
 DIST_DIR = dist
 
@@ -12,37 +17,26 @@ MINIFIED_SCRIPT = $(SCRIPT:$(SRC_DIR)%=$(DIST_DIR)%)
 MINIFIED_SOCIAL = $(SOCIAL:$(SRC_DIR)%=$(DIST_DIR)%)
 MINIFIED_ICON   = $(ICON:$(SRC_DIR)%=$(DIST_DIR)%)
 
-BLOG_IMAGES = $(wildcard posts/*/content/*.png)
+BLOG_IMAGES = $(wildcard blog/post/*/content/*.png)
 
-.PHONY: build install run optimize docker docker-run
+.PHONY: build start install clean watch validate-build-type docker-build
 
-build: node_modules src/style/github-markdown-processed.css \
+build: validate-mode node_modules src/style/github-markdown-processed.css \
 	src/style/github.css dist $(MINIFIED_STYLE) $(MINIFIED_SCRIPT) \
-	$(MINIFIED_SOCIAL) $(MINIFIED_ICON) $(BLOG_IMAGES)
+	$(MINIFIED_SOCIAL) $(MINIFIED_ICON) $(BLOG_IMAGES) optimize
 
-$(DIST_DIR)/style/%.css: $(SRC_DIR)/style/%.css
-	mkdir -p $(dir $@)
-	node_modules/uglifycss/uglifycss $< --output $@
+start: build 
+	poetry run python3 app.py
 
-$(DIST_DIR)/script/%.js: $(SRC_DIR)/script/%.js
-	mkdir -p $(dir $@)
-	node_modules/uglify-js/bin/uglifyjs $< -o $@  
+clean:
+	rm -rf dist node_modules
 
-$(DIST_DIR)/image/social/%.png: $(SRC_DIR)/image/social/%.png
-	mkdir -p $(dir $@)
-ifeq ($(MODE),prod)
-	convert $< -resize 64x64 $@
-	zopflipng -y -m $@ $@
-else
-	cp $< $@
-endif
+install: pyproject.toml pyproject.lock
+	poetry install
 
-$(DIST_DIR)/image/icon/%.png: $(SRC_DIR)/image/icon/%.png
-	mkdir -p $(dir $@)
-	cp $< $@
-ifeq ($(MODE),prod)
-	zopflipng -y -m $@ $@
-endif
+watch: 
+	poetry run python3 app.py &
+	fswatch -ro $(SRC_DIR) --event=Updated | xargs -n1 -I{} make build
 
 optimize: $(BLOG_IMAGES)
 ifeq ($(MODE),prod)	
@@ -52,11 +46,35 @@ ifeq ($(MODE),prod)
 	done
 endif	
 
-clean:
-	rm -rf dist node_modules
+validate-mode:
+ifeq ($(filter $(MODE),$(VALID_MODES)),)
+	$(info Invalid mode '$(MODE)' (Valid: $(shell echo $(VALID_MODES) | sed "s/ /, /g")))
+	@exit 1
+endif
 
-install: pyproject.toml pyproject.lock
-	poetry install
+$(DIST_DIR)/style/%.css: $(SRC_DIR)/style/%.css
+	@mkdir -p $(dir $@)
+	node_modules/uglifycss/uglifycss $< --output $@
+
+$(DIST_DIR)/script/%.js: $(SRC_DIR)/script/%.js
+	@mkdir -p $(dir $@)
+	node_modules/uglify-js/bin/uglifyjs $< -o $@  
+
+$(DIST_DIR)/image/social/%.png: $(SRC_DIR)/image/social/%.png
+	@mkdir -p $(dir $@)
+ifeq ($(MODE),prod)
+	convert $< -resize 64x64 $@
+	zopflipng -y -m $@ $@
+else
+	cp $< $@
+endif
+
+$(DIST_DIR)/image/icon/%.png: $(SRC_DIR)/image/icon/%.png
+	@mkdir -p $(dir $@)
+	cp $< $@
+ifeq ($(MODE),prod)
+	zopflipng -y -m $@ $@
+endif
 
 node_modules: package.json yarn.lock
 	yarn install
@@ -65,7 +83,7 @@ dist:
 	mkdir -p dist
 
 src/style/github-markdown-processed.css: src/style/github-markdown-base.css
-	python3 utils/github_css_postprocess.py
+	/usr/bin/env python3 utils/github_css_postprocess.py
 
 src/style/github-markdown-base.css:
 	node_modules/generate-github-markdown-css/cli.js > src/style/github-markdown-base.css
@@ -73,18 +91,6 @@ src/style/github-markdown-base.css:
 src/style/github.css:
 	ln -sf $(realpath node_modules/pygments-github-css/github.css) src/style/
 
-run: build 
-	poetry run python3 app.py
 
-watch: 
-	poetry run python3 app.py &
-	fswatch -ro $(SRC_DIR) --event=Updated | xargs -n1 -I{} make build
-
-docker-build-prod:
-	docker build --build-arg mode=prod -t philiptrauner/philip-trauner.me:prod .
-
-docker-build-dev:
-	docker build --build-arg mode=dev -t philiptrauner/philip-trauner.me:dev .
-
-docker-run: docker-build-dev
-	docker run -p 5000:5000 -v $(realpath app.cfg):/app/app.cfg philiptrauner/philip-trauner.me:dev		
+docker-build: build
+	docker build -t philiptrauner/philip-trauner.me:prod .
