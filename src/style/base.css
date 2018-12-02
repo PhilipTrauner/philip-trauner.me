@@ -75,6 +75,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .metadata span {
 	margin-right: 1px;
+	position: relative;
 }
 
 .metadata span:last-child {
@@ -83,6 +84,31 @@ h1, h2, h3, h4, h5, h6 {
 
 .metadata-seperator {
 	font-weight: bold;
+}
+
+.overall-time {
+	position: relative;
+}
+
+.overall-time:hover .time-breakdown {
+	visibility: visible;
+}
+
+.overall-time .time-breakdown {
+	visibility: hidden;
+	position: absolute;
+	z-index: 1;
+	left: 110%;
+	background-color: white;
+	border: 2px solid black;
+	white-space: nowrap;
+	padding: 0.3em;
+}
+
+
+.time-breakdown span {
+	text-align: left;
+	display: block;
 }
 
 .post-list {
@@ -134,5 +160,11 @@ h1, h2, h3, h4, h5, h6 {
 	.right-column {
 		float: none;
 		text-align: left;
+	}
+}
+
+@media screen and (max-width: 590px) {
+	.time-breakdown {
+		visibility: hidden !important;
 	}
 }
