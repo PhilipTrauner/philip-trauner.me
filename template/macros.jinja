@@ -29,7 +29,13 @@
 	<span class="metadata-seperator">·</span>
 	<span>{{ post.read_time.word_count }} Words</span>
 	<span class="metadata-seperator">·</span>
-	<span>~ {{ post.read_time.pretty_time }} Minutes</span>
+	<span class="overall-time">{{ post.read_time.pretty_overall_time }}
+		<span class="time-breakdown">
+			{% for element in post.read_time.pretty_time_breakdown %}
+			<span>{{ element }}: {{ post.read_time.pretty_time_breakdown[element] }}</span>
+			{% endfor %}
+		</span>
+	</span>
 </div>
 {%- endmacro %}
 

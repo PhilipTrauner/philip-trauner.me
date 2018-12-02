@@ -55,22 +55,22 @@
 			{% for repo in repos %}
 				<li>
 					<div id="repo-{{ repo.name }}" class="project-header">
+						<a href="{{ repo.url }}">
+							<h3>{{ repo.name }}</h3>
+						</a>
 						{% if repo.fork %}
-							<span class="project-fork">
+							<span class="project-svg project-fork">
 								<svg height="16" width="14">
 									<use xlink:href="#fork"></use>
 								</svg>
 							</span> 
-						{% endif %}
-						<a href="{{ repo.url }}">
-							<h3>{{ repo.name }}</h3>
-						</a>
-						<span class="project-stars">
+						{% endif %}						
+						<span class="project-svg project-stars">
 							<svg height="16" width="14">
 								<use xlink:href="#star"></use>
 							</svg>
-							<span class="project-star-count">{{ repo.stars }}</span>
 						</span>
+						<span class="project-star-count">{{ repo.stars }}</span>
 					</div>
 					{% if repo.archived %}
 						<span class="project-label">Archived</span> 
