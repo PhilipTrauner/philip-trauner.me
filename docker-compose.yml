@@ -1,0 +1,25 @@
+version: "3"
+services:
+  app:
+    image: philiptrauner/philip-trauner.me:prod
+    volumes:
+      - ${BLOG_PATH}:/app/blog:ro
+      - dist:/app/dist
+    env_file: env/app-env
+    restart: always
+
+  nginx:
+    image: nginx
+    volumes:
+      - ${BLOG_PATH}:/static/blog:ro
+      - dist:/static/dist:ro
+      - ./docker/default.template:/tmp/default.template:ro
+    ports:
+      - ${PORT}:80
+    links:
+      - app:app
+    env_file: env/app-env
+    command: /bin/bash -c "envsubst '$$NGINX_SERVER_NAME $$NGINX_STATIC_SUBDOMAIN $$NGINX_BLOG_SUBDOMAIN' 
+      < /tmp/default.template > /etc/nginx/conf.d/default.conf && exec nginx -g \"daemon off;\""
+volumes:
+  dist:
