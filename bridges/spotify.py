@@ -60,7 +60,7 @@ class Spotify:
                     )
                 )
             if playlists["next"]:
-                playlists = sp.next(playlists)
+                playlists = self.sp.next(playlists)
             else:
                 playlists = None
 
