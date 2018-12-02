@@ -10,3 +10,4 @@ src/style/github-markdown-base.css
 src/style/github-markdown-processed.css
 dist/
 src/style/github.css
+blog
