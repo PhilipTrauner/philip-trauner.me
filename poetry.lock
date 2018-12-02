@@ -3,7 +3,6 @@ category = "main"
 description = "File support for asyncio."
 name = "aiofiles"
 optional = false
-platform = "*"
 python-versions = "*"
 version = "0.4.0"
 
@@ -12,7 +11,6 @@ category = "main"
 description = "Screen-scraping library"
 name = "beautifulsoup4"
 optional = false
-platform = "*"
 python-versions = "*"
 version = "4.6.3"
 
@@ -21,7 +19,6 @@ category = "main"
 description = "Python package for providing Mozilla's CA Bundle."
 name = "certifi"
 optional = false
-platform = "*"
 python-versions = "*"
 version = "2018.8.24"
 
@@ -30,7 +27,6 @@ category = "main"
 description = "Universal encoding detector for Python 2 and 3"
 name = "chardet"
 optional = false
-platform = "*"
 python-versions = "*"
 version = "3.0.4"
 
@@ -39,7 +35,6 @@ category = "main"
 description = "HTML minifier for Python frameworks (not only Django, despite the name)."
 name = "django-htmlmin"
 optional = false
-platform = "*"
 python-versions = "*"
 version = "0.10.0"
 
@@ -52,7 +47,6 @@ category = "main"
 description = "HTML parser based on the WHATWG HTML specification"
 name = "html5lib"
 optional = false
-platform = "*"
 python-versions = "*"
 version = "1.0.1"
 
@@ -65,7 +59,6 @@ category = "main"
 description = "A collection of framework independent HTTP protocol utils."
 name = "httptools"
 optional = false
-platform = "POSIX"
 python-versions = "*"
 version = "0.0.11"
 
@@ -74,7 +67,6 @@ category = "main"
 description = "Internationalized Domain Names in Applications (IDNA)"
 name = "idna"
 optional = false
-platform = "*"
 python-versions = "*"
 version = "2.7"
 
@@ -83,7 +75,6 @@ category = "main"
 description = "A small but fast and easy to use stand-alone template engine written in pure python."
 name = "jinja2"
 optional = false
-platform = "*"
 python-versions = "*"
 version = "2.10"
 
@@ -95,25 +86,14 @@ category = "main"
 description = "Implements a XML/HTML/XHTML Markup safe string for Python"
 name = "markupsafe"
 optional = false
-platform = "UNKNOWN"
 python-versions = "*"
 version = "1.0"
-
-[[package]]
-category = "main"
-description = "Python configuration files in Python."
-name = "meh"
-optional = false
-platform = "*"
-python-versions = "*"
-version = "1.2.1"
 
 [[package]]
 category = "main"
 description = "The fastest markdown parser in pure Python"
 name = "mistune"
 optional = false
-platform = "any"
 python-versions = "*"
 version = "0.8.3"
 
@@ -122,7 +102,6 @@ category = "main"
 description = "File system general utilities"
 name = "pathtools3"
 optional = false
-platform = "*"
 python-versions = "*"
 version = "0.2.1"
 
@@ -131,43 +110,36 @@ category = "main"
 description = "Pygments is a syntax highlighting package written in Python."
 name = "pygments"
 optional = false
-platform = "any"
 python-versions = "*"
 version = "2.2.0"
 
 [[package]]
 category = "main"
 description = "Python<->ObjC Interoperability Module"
+marker = "sys_platform == \"darwin\""
 name = "pyobjc-core"
 optional = false
-platform = "MacOS X"
 python-versions = "*"
 version = "4.2.2"
-
-[package.requirements]
-platform = "darwin"
 
 [[package]]
 category = "main"
 description = "Wrappers for the Cocoa frameworks on macOS"
+marker = "sys_platform == \"darwin\""
 name = "pyobjc-framework-cocoa"
 optional = false
-platform = "MacOS X"
 python-versions = "*"
 version = "4.2.2"
 
 [package.dependencies]
 pyobjc-core = ">=4.2.2"
 
-[package.requirements]
-platform = "darwin"
-
 [[package]]
 category = "main"
 description = "Wrappers for the framework FSEvents on macOS"
+marker = "sys_platform == \"darwin\""
 name = "pyobjc-framework-fsevents"
 optional = false
-platform = "MacOS X (>=10.5)"
 python-versions = "*"
 version = "4.2.2"
 
@@ -175,15 +147,11 @@ version = "4.2.2"
 pyobjc-core = ">=4.2.2"
 pyobjc-framework-Cocoa = ">=4.2.2"
 
-[package.requirements]
-platform = "darwin"
-
 [[package]]
 category = "main"
 description = "Python HTTP for Humans."
 name = "requests"
 optional = false
-platform = "*"
 python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 version = "2.19.1"
 
@@ -198,7 +166,6 @@ category = "main"
 description = ""
 name = "rfeed"
 optional = false
-platform = "*"
 python-versions = "*"
 version = "1.0.0"
 
@@ -206,12 +173,12 @@ version = "1.0.0"
 reference = "2e1aa6f036efcb097543a6529862a3f956e85187"
 type = "git"
 url = "https://github.com/PhilipTrauner/rfeed.git"
+
 [[package]]
 category = "main"
 description = "A microframework based on uvloop, httptools, and learnings of flask"
 name = "sanic"
 optional = false
-platform = "any"
 python-versions = "*"
 version = "0.7.0"
 
@@ -227,7 +194,6 @@ category = "main"
 description = "Python 2 and 3 compatibility utilities"
 name = "six"
 optional = false
-platform = "*"
 python-versions = "*"
 version = "1.11.0"
 
@@ -236,7 +202,6 @@ category = "main"
 description = "simple client for the Spotify Web API"
 name = "spotipy"
 optional = false
-platform = "UNKNOWN"
 python-versions = "*"
 version = "2.4.4"
 
@@ -248,7 +213,6 @@ category = "main"
 description = "Ultra fast JSON encoder and decoder for Python"
 name = "ujson"
 optional = false
-platform = "any"
 python-versions = "*"
 version = "1.35"
 
@@ -257,7 +221,6 @@ category = "main"
 description = "HTTP library with thread-safe connection pooling, file post, and more."
 name = "urllib3"
 optional = false
-platform = "*"
 python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, <4"
 version = "1.23"
 
@@ -266,7 +229,6 @@ category = "main"
 description = "Object-oriented URL from `urllib.parse` and `pathlib`"
 name = "urlpath"
 optional = false
-platform = "*"
 python-versions = "*"
 version = "1.1.4"
 
@@ -278,36 +240,35 @@ category = "main"
 description = "Fast implementation of asyncio event loop on top of libuv"
 name = "uvloop"
 optional = false
-platform = "*nix"
 python-versions = "*"
 version = "0.11.2"
+
+[[package]]
+category = "main"
+description = "# Voluptuous is a Python data validation library"
+name = "voluptuous"
+optional = false
+python-versions = "*"
+version = "0.11.5"
 
 [[package]]
 category = "main"
 description = "Filesystem events monitoring"
 name = "watchdog3"
 optional = false
-platform = "*"
 python-versions = "*"
 version = "0.8.5"
 
 [package.dependencies]
 pathtools3 = ">=0.2.1"
-
-[package.dependencies.pyobjc-framework-Cocoa]
-platform = "darwin"
-version = ">=4.2.2"
-
-[package.dependencies.pyobjc-framework-FSEvents]
-platform = "darwin"
-version = ">=4.2.2"
+pyobjc-framework-Cocoa = ">=4.2.2"
+pyobjc-framework-FSEvents = ">=4.2.2"
 
 [[package]]
 category = "main"
 description = "Character encoding aliases for legacy web content"
 name = "webencodings"
 optional = false
-platform = "*"
 python-versions = "*"
 version = "0.5.1"
 
@@ -316,13 +277,11 @@ category = "main"
 description = "An implementation of the WebSocket Protocol (RFC 6455 & 7692)"
 name = "websockets"
 optional = false
-platform = "*"
 python-versions = ">=3.4"
 version = "6.0"
 
 [metadata]
-content-hash = "1596695baa6915f629d801e366d952db550e687756e4036b75056046ef753d50"
-platform = "*"
+content-hash = "ef4bd72820d29b96c401e8bdcccfec390573d1805d693bd96642f6a5596b3ba4"
 python-versions = "^3.7"
 
 [metadata.hashes]
@@ -336,7 +295,6 @@ httptools = ["04c7703bbef0e8ca28b09811547352b8c7c20549eab70dc24e536bb24fd2b7c5"]
 idna = ["156a6814fb5ac1fc6850fb002e0852d56c0c8d2531923a51032d1b70760e186e", "684a38a6f903c1d71d6d5fac066b58d7768af4de2b832e426ec79c30daa94a16"]
 jinja2 = ["74c935a1b8bb9a3947c50a54766a969d4846290e1e788ea44c1392163723c3bd", "f84be1bb0040caca4cea721fcbbbbd61f9be9464ca236387158b0feea01914a4"]
 markupsafe = ["a6be69091dac236ea9c6bc7d012beab42010fa914c459791d627dad4910eb665"]
-meh = ["c1dd9d92eda20a98f0fd91fe6889390ba5cf04107be8789c0368e178f11e8f43"]
 mistune = ["b4c512ce2fc99e5a62eb95a4aba4b73e5f90264115c40b70a21e1f7d4e0eac91", "bc10c33bfdcaa4e749b779f62f60d6e12f8215c46a292d05e486b869ae306619"]
 pathtools3 = ["0c267c304fb36b581897d63ee26e9d873213688d1dde2d95c77986b5eed2cc83", "630c1edc09ef93abea40fc06b10067e5734d8f38cc85867bc61d1a5c9eb7796f"]
 pygments = ["78f3f434bcc5d6ee09020f92ba487f95ba50f1e3ef83ae96b9d5ffa1bab25c5d", "dbae1046def0efb574852fab9e90209b23f556367b5a320c0bcb871c77c3e8cc"]
@@ -352,6 +310,7 @@ ujson = ["f66073e5506e91d204ab0c614a148d5aa938bdbf104751be66f8ad7a222f5f86"]
 urllib3 = ["a68ac5e15e76e7e5dd2b8f94007233e01effe3e50e8daddf69acfd81cb686baf", "b5725a0bd4ba422ab0e66e89e030c806576753ea3ee08554382c14e685d117b5"]
 urlpath = ["d6f543cf17bde4d6e6e53945fb28514e39b306e1039ae26dab99e9bb90fb7959"]
 uvloop = ["0657ebcccb261bdd0a360c83dbc6c1218f13cf5c1a3f381bca68ba5977bb6e5a", "089b3513db7f2122ac00a9ce18be879d626a566537c93bbcbb54053e3f24acf5", "251744b1bb162577db2e48cccb28ec9bad4126591471e6ba63dcbe71abc1c741", "4076d40ae0b7557d5982ffe726b153c947a4d70725080ead0121006bdb9f7431", "58d6978112ff292cedf2fd754c8085c9a8c6b98737b8ab3cda3d2a081977a91e", "a97bd62ebbdf7e6e84bf44afe439d9b24ce4d8661a29a639626a8c03748f6f98", "c2e04cab3e2c71d79002a814a243bc42f0253eb761b1f3af989d38ec8142532c", "cbab9f6de63b10fc4991cbf9a720a8ceecfba501f5571f35fc3a74c76223ea66", "d3818242d174a326ea49e2e8f7c1e448432ce17ecb31aeb5084600950857b663", "f2ffcaa13a5e279d0b3296cd6c691df39876cc818482168a80edd3b0e5deef57"]
+voluptuous = ["303542b3fc07fb52ec3d7a1c614b329cdbee13a9d681935353d8ea56a7bfa9f1", "567a56286ef82a9d7ae0628c5842f65f516abcb496e74f3f59f1d7b28df314ef"]
 watchdog3 = ["742b1b8836807bca7e28b062b85987ae5fc10aada4274c204b26a195a7ddf2b3"]
 webencodings = ["a0af1213f3c2226497a97e2b3aa01a7e4bee4f403f95be16fc9acd2947514a78", "b36a1c245f2d304965eb4e0a82848379241dc04b865afcc4aab16748587e1923"]
 websockets = ["0e2f7d6567838369af074f0ef4d0b802d19fa1fee135d864acc656ceefa33136", "2a16dac282b2fdae75178d0ed3d5b9bc3258dabfae50196cbb30578d84b6f6a6", "5a1fa6072405648cb5b3688e9ed3b94be683ce4a4e5723e6f5d34859dee495c1", "5c1f55a1274df9d6a37553fef8cff2958515438c58920897675c9bc70f5a0538", "669d1e46f165e0ad152ed8197f7edead22854a6c90419f544e0f234cc9dac6c4", "695e34c4dbea18d09ab2c258994a8bf6a09564e762655408241f6a14592d2908", "6b2e03d69afa8d20253455e67b64de1a82ff8612db105113cccec35d3f8429f0", "79ca7cdda7ad4e3663ea3c43bfa8637fc5d5604c7737f19a8964781abbd1148d", "7fd2dd9a856f72e6ed06f82facfce01d119b88457cd4b47b7ae501e8e11eba9c", "82c0354ac39379d836719a77ee360ef865377aa6fdead87909d50248d0f05f4d", "8f3b956d11c5b301206382726210dc1d3bee1a9ccf7aadf895aaf31f71c3716c", "91ec98640220ae05b34b79ee88abf27f97ef7c61cf525eec57ea8fcea9f7dddb", "952be9540d83dba815569d5cb5f31708801e0bbfc3a8c5aef1890b57ed7e58bf", "99ac266af38ba1b1fe13975aea01ac0e14bb5f3a3200d2c69f05385768b8568e", "9fa122e7adb24232247f8a89f2d9070bf64b7869daf93ac5e19546b409e47e96", "a0873eadc4b8ca93e2e848d490809e0123eea154aa44ecd0109c4d0171869584", "cb998bd4d93af46b8b49ecf5a72c0a98e5cc6d57fdca6527ba78ad89d6606484", "e02e57346f6a68523e3c43bbdf35dde5c440318d1f827208ae455f6a2ace446d", "e79a5a896bcee7fff24a788d72e5c69f13e61369d055f28113e71945a7eb1559", "ee55eb6bcf23ecc975e6b47c127c201b913598f38b6a300075f84eeef2d3baff", "f1414e6cbcea8d22843e7eafdfdfae3dd1aba41d1945f6ca66e4806c07c4f454"]
