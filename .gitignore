@@ -13,5 +13,5 @@ src/style/github.css
 .env
 .envrc
 blog
-env/
+env/*
 !env/template
