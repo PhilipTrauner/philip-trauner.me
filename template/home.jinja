@@ -83,7 +83,7 @@
 			{% endfor %}
 		</ul>
 	{% else %}
-		{{ macros.warning("Could not repositories.", is_content=False) }}
+		{{ macros.warning("Could not load repositories.", is_content=False) }}
 	{% endif %}
 	<h2 id="orgs">Organisations</h2> 
 	{% if orgs %}
@@ -101,7 +101,7 @@
 			</div>
 		</div>
 	{% else %}
-		{{ macros.warning("Could not load blog organisations.", is_content=False) }}
+		{{ macros.warning("Could not load organisations.", is_content=False) }}
 	{% endif %}
 </div>
 <div id="playlists" class="hidden content">
