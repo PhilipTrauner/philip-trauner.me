@@ -1,4 +1,6 @@
 from typing import Callable, List, Tuple, Type, Dict, Any, Union, Iterable
+from sys import exc_info
+from traceback import print_exception
 
 WARNING_COLOR = "\033[33m"
 EMPHASIS_COLOR = "\033[35m"
