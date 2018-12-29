@@ -12,8 +12,7 @@ from typing import Callable, List, Optional, Tuple, Type, Dict, Any, Union, Iter
 from enum import Enum
 from functools import partial
 from dataclasses import dataclass
-from traceback import print_exception
-from sys import exc_info
+
 
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler as WatchdogFileSystemEventHandler
