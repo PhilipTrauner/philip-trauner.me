@@ -6,6 +6,10 @@
 	margin-bottom: 16px;
 }
 
+.markdown-body {
+	padding-bottom: 16px;
+}
+
 .title-container {
 	border-bottom: 1px solid #eaecef;
 	margin-bottom: 16px;
