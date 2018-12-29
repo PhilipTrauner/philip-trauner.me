@@ -731,6 +731,8 @@ class Blog:
             lastBuildDate=datetime.now(),
             items=feed_items,
         )
+        feed.docs = None
+        feed.generator = None
 
         self.lock.acquire()
 
