@@ -26,6 +26,8 @@ from rfeed import Feed, Item, Guid, Category
 from voluptuous import Required, Schema, Range, All, Optional, MultipleInvalid
 from voluptuous import Any as VolAny
 
+from bs4 import BeautifulSoup
+
 from util import (
     safe_execute,
     capture_trace,
@@ -80,6 +82,9 @@ READ_TIME_IMPACT_NAME: Dict[REGEX_TYPE, Tuple[str, str]] = {
     CAPTION: ("Caption", "Captions"),
     DEFAULT: ("Text", "Text"),
 }
+
+# Content between HTML tags does not contribute to read time estimation
+READ_TIME_IGNORED_TAGS = ["details"]
 
 CONTENT_FOLDER = "content"
 BLOG_METADATA = "metadata.json"
@@ -285,6 +290,11 @@ class ReadTime:
         self.pretty_overall_time = self.overall_time.format_(Time.Format.BLOG)
 
 
+@dataclass
+class ReadTimeHint:
+    ignored_tags: List[str]
+
+
 class Image:
     @dataclass
     class _Image:
@@ -304,6 +314,9 @@ class PostMetadata:
         "author": str,
         "date": All(int, Range(min=1)),
         "tags": [str],
+        Optional("read_time_hint", default={"excluded_tags": READ_TIME_IGNORED_TAGS}): {
+            "excluded_tags": [str]
+        },
         Optional("hidden", default=False): bool,
     }
     VALIDATION_SCHEMA_WITHOUT_CODE = Schema(
@@ -323,6 +336,7 @@ class PostMetadata:
         description: str
         section: str
         author: str
+        read_time_hint: ReadTimeHint
         hidden: bool
 
     def __new__(
@@ -347,6 +361,7 @@ class PostMetadata:
             metadata_dict["description"],
             metadata_dict["section"],
             metadata_dict["author"],
+            ReadTimeHint(metadata_dict["read_time_hint"]["excluded_tags"]),
             metadata_dict.get("hidden", False),
         )
 
@@ -396,16 +411,22 @@ class Post:
             )
             post_content_split = modified_post_content.split("\n")
 
+            post_metadata = PostMetadata(
+                post_path / BLOG_METADATA, Post.has_code(unmodified_post_content)
+            )
+
             return Post._Post(
                 post_path.name,
                 post_content_split[0].lstrip("#").strip(),
-                PostMetadata(
-                    post_path / BLOG_METADATA, Post.has_code(unmodified_post_content)
-                ),
+                post_metadata,
                 Blog.MARKDOWN.render("\n".join(post_content_split[1:])),
                 images,
                 Post.has_code(unmodified_post_content),
-                ReadTime(*Post.read_time(unmodified_post_content)),
+                ReadTime(
+                    *Post.read_time(
+                        unmodified_post_content, post_metadata.read_time_hint
+                    )
+                ),
             )
         else:
             return None
@@ -489,9 +510,18 @@ class Post:
         return bool(HAS_CODE.search(post_content))
 
     @staticmethod
-    def read_time(post_content: str) -> Tuple[Dict[REGEX_TYPE, Tuple[int, Time]], Time]:
+    def read_time(
+        post_content: str, read_time_hint: ReadTimeHint
+    ) -> Tuple[Dict[REGEX_TYPE, Tuple[int, Time]], Time]:
         overall_time = Time()
         time_breakdown = {}
+
+        bs = BeautifulSoup(post_content, features="html5lib")
+        for tag in read_time_hint.ignored_tags:
+            for bs_tag in bs.find_all(tag):
+                bs_tag.decompose()
+
+        post_content = str(bs)
 
         # 3.7: Dictionary order is guaranteed to be insertion order
         for regex in READ_TIME_IMPACT.keys():
