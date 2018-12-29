@@ -18,8 +18,8 @@ rfeed = { git = "https://github.com/PhilipTrauner/rfeed.git" }
 django-htmlmin = "^0.10.0"
 urlpath = "^1.1"
 voluptuous = "^0.11.5"
-markdown = { git = "https://github.com/PhilipTrauner/markdown.git", branch = "overlapping-matches"}
-pymdown-extensions = { git = "https://github.com/facelessuser/pymdown-extensions.git"}
+markdown = { git = "https://github.com/PhilipTrauner/markdown.git"}
+pymdown-extensions = "6.0"
 beautifulsoup4 = "^4.6.3"
 
 [tool.poetry.dev-dependencies]
