@@ -12,12 +12,13 @@ Jinja2 = "^2.10"
 requests = "^2.19"
 Sanic = "^0.7.0"
 spotipy = "^2.4"
-mistune = "^0.8.3"
 pygments = "^2.2"
 watchdog3 = "^0.8.4"
 rfeed = { git = "https://github.com/PhilipTrauner/rfeed.git" }
 django-htmlmin = "^0.10.0"
 urlpath = "^1.1"
 voluptuous = "^0.11.5"
+markdown = { git = "https://github.com/PhilipTrauner/markdown.git", branch = "overlapping-matches"}
+pymdown-extensions = { git = "https://github.com/facelessuser/pymdown-extensions.git"}
 
 [tool.poetry.dev-dependencies]

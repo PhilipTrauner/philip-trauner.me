@@ -18,13 +18,7 @@ from sys import exc_info
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler as WatchdogFileSystemEventHandler
 
-from mistune import Renderer as MistuneRenderer
-from mistune import Markdown as MistuneMarkdown
-from mistune import escape as mistune_escape
-
-from pygments import highlight
-from pygments.lexers import get_lexer_by_name
-from pygments.formatters import html
+from markdown import Markdown as BaseMarkdown
 
 from urlpath import URL as Url
 
@@ -98,6 +92,11 @@ def _cc_license_urls(license_string: str) -> Tuple[Url, Url]:
         Url(LICENSE_BASE_URL) / license_string / LICENSE_END_URL,
         Url(LICENSE_IMAGE_BASE_URL) / license_string / LICENSE_IMAGE_END_URL,
     )
+
+
+class Markdown(BaseMarkdown):
+    def render(self, *args, **kwargs):
+        return self.reset().convert(*args, **kwargs)
 
 
 @dataclass
@@ -526,14 +525,6 @@ class Post:
 
 
 class Blog:
-    class _HighlightRenderer(MistuneRenderer):
-        def block_code(self, code: str, lang: Optional[str]) -> str:
-            if not lang:
-                return "\n<pre><code>%s</code></pre>\n" % mistune_escape(code)
-            lexer = get_lexer_by_name(lang, stripall=True)
-            formatter = html.HtmlFormatter()
-            return highlight(code, lexer, formatter)
-
     class _FileSystemEventHandler(WatchdogFileSystemEventHandler):
         def __init__(self, method: Callable) -> None:
             self.method = method
@@ -541,7 +532,23 @@ class Blog:
         def on_any_event(self, event: Any):
             self.method()
 
-    MARKDOWN = MistuneMarkdown(renderer=_HighlightRenderer())
+    MARKDOWN = Markdown(
+        extensions=[
+            "footnotes",
+            "nl2br",
+            "codehilite",
+            "fenced_code",
+            "pymdownx.tilde",
+        ],
+        extension_configs={
+            "codehilite": {
+                "css_class": "highlight",
+                "guess_lang": False,
+                "linenums": False,
+            }
+        },
+        output_format="html5",
+    )
 
     def __init__(
         self,
