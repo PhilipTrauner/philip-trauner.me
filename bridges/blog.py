@@ -373,7 +373,7 @@ class PostMetadata:
                 if post_has_code
                 else PostMetadata.VALIDATION_SCHEMA_WITHOUT_CODE
             )(json_loads(open(metadata_path, "r").read()))
-        except MultipleInvalid as e:
+        except (MultipleInvalid, JSONDecodeError) as e:
             warning("Validation of '%s' failed: %s" % (metadata_path, str(e)))
             return False
 
@@ -445,7 +445,7 @@ class Post:
         validation_result = validate(
             [
                 Validator(
-                    partial(lambda text_path: text_path.exists, text_path),
+                    partial(lambda text_path: text_path.exists(), text_path),
                     "path to post does not exist",
                 ),
                 Validator(
@@ -459,23 +459,30 @@ class Post:
                     ),
                     "post has no heading",
                 ),
+                Validator(
+                    partial(
+                        lambda metadata_path: metadata_path.exists(), metadata_path
+                    ),
+                    "post metadata does not exist",
+                ),
+                Validator(
+                    partial(
+                        lambda metadata_path: metadata_path.exists(), metadata_path
+                    ),
+                    "post metadata does not exist",
+                ),
             ]
         )
 
         if validation_result.success:
             valid_text = True
             post_has_code = Post.has_code(open(text_path, "r").read())
-
-            # Metadata can be valid, even if the text is invalid
-            valid_metadata = metadata_path.exists() and PostMetadata.valid(
-                metadata_path, post_has_code
-            )
         else:
             warning(
                 "Validation of '%s' failed: %s" % (post_path, validation_result.error)
             )
 
-        return valid_text and valid_metadata
+        return valid_text and PostMetadata.valid(metadata_path, post_has_code)
 
     @staticmethod
     def rewrite_images(post_content: str, image_base_url: str) -> str:
