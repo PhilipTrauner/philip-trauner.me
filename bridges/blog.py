@@ -386,7 +386,7 @@ class Post:
         name: str
         title: str
         post_metadata: PostMetadata._PostMetadata
-        markdown: str
+        html: str
         images: List[Image._Image]
         has_code: bool
         read_time: ReadTime
