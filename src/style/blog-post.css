@@ -79,6 +79,10 @@
 	}	
 }
 
+details, summary {
+	margin-bottom: 10px;
+}
+
 .utterances {
 	margin-left: 20vw;
 	margin-right: 20vw;
