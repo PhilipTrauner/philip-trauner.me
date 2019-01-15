@@ -1,12 +1,13 @@
-THIS := $(lastword $(MAKEFILE_LIST))
-
 MODE ?= dev
 VALID_MODES = dev prod
+
+BROWSER ?= Google Chrome Canary
 
 SRC_DIR = src
 DIST_DIR = dist
 
-STYLE  = $(wildcard src/style/*.css)
+STYLE  = $(wildcard src/style/*.css) 
+STYLE := $(STYLE) src/style/github-markdown-processed.css src/style/github.css
 STYLE := $(filter-out src/style/github-markdown-base.css, $(STYLE))
 SCRIPT = $(wildcard src/script/*.js)
 SOCIAL = $(wildcard src/image/social/*.png)
@@ -18,27 +19,29 @@ MINIFIED_SOCIAL = $(SOCIAL:$(SRC_DIR)%=$(DIST_DIR)%)
 MINIFIED_ICON   = $(ICON:$(SRC_DIR)%=$(DIST_DIR)%)
 
 BLOG_IMAGES = $(wildcard blog/post/*/content/*.png)
+BLOG_POSTS = $(wildcard blog/post/*/*)
 
-.PHONY: build start install clean watch validate-build-type docker-build
+.PHONY: build start install clean watch validate-mode docker-build crunch
 
-build: validate-mode node_modules src/style/github-markdown-processed.css \
-	src/style/github.css dist $(MINIFIED_STYLE) $(MINIFIED_SCRIPT) \
-	$(MINIFIED_SOCIAL) $(MINIFIED_ICON) $(BLOG_IMAGES) optimize
+build: validate-mode src/style/github.css src/style/github-markdown-processed.css \
+	dist $(MINIFIED_STYLE) $(MINIFIED_SCRIPT) $(MINIFIED_SOCIAL) $(MINIFIED_ICON) \
+	crunch
 
 start: build 
 	poetry run python3 app.py
 
 clean:
-	rm -rf dist node_modules
+	rm -rf dist node_modules src/style/github-markdown-base.css \
+		src/style/github-markdown-processed.css src/style/github.css
 
 install: pyproject.toml pyproject.lock
 	poetry install
 
-watch: 
-	poetry run python3 app.py &
-	fswatch -ro $(SRC_DIR) --event=Updated | xargs -n1 -I{} make build
+watch: build
+	@poetry run python3 app.py &
+	@echo $(STYLE) $(SCRIPT) $(SOCIAL) $(ICON) $(BLOG_POSTS) | tr " " "\n" | entr -p make build
 
-optimize: $(BLOG_IMAGES)
+crunch:
 ifeq ($(MODE),prod)	
 	for image in $(BLOG_IMAGES) ; do \
 		zopflipng -y $$image $$image ; \
@@ -85,12 +88,11 @@ dist:
 src/style/github-markdown-processed.css: src/style/github-markdown-base.css
 	/usr/bin/env python3 utils/github_css_postprocess.py
 
-src/style/github-markdown-base.css:
+src/style/github-markdown-base.css: node_modules
 	node_modules/generate-github-markdown-css/cli.js > src/style/github-markdown-base.css
 
-src/style/github.css:
-	ln -sf $(realpath node_modules/pygments-github-css/github.css) src/style/
-
+src/style/github.css: node_modules
+	cp $(realpath node_modules/pygments-github-css/github.css) src/style/
 
 docker-build: build
 	docker build -t philiptrauner/philip-trauner.me:prod .
