@@ -89,3 +89,8 @@ details, summary {
 	max-width: unset;
 	width: unset;
 }
+
+table {
+	display: table !important;
+	
+}
