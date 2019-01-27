@@ -28,8 +28,8 @@ server {
 	server_name ${NGINX_STATIC_SUBDOMAIN}.${NGINX_SERVER_NAME};
 	root /static/dist;
 
-	location ~*  \.(jpg|jpeg|png|gif|ico|css|js|svg)$ {
-		expires 50d;
+	location ~*  \.(jpg|jpeg|png|gif|ico|svg)$ {
+		expires 5d;
 	}
 }
 
@@ -39,7 +39,7 @@ server {
 	server_name ${NGINX_BLOG_SUBDOMAIN}.${NGINX_SERVER_NAME};
 	root /static/blog/post;
 
-	location ~*  \.(jpg|jpeg|png|gif|ico|css|js|svg)$ {
-		expires 10d;
+	location ~*  \.(jpg|jpeg|png|gif|ico|svg)$ {
+		expires 1d;
 	}
 }
