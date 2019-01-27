@@ -575,6 +575,7 @@ class Blog:
             "codehilite",
             "fenced_code",
             "pymdownx.tilde",
+            "tables",
         ],
         extension_configs={
             "codehilite": {
