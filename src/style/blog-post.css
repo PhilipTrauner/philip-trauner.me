@@ -1,4 +1,4 @@
-.highlight + figcaption, pre + figcaption, p + figcaption  {
+figcaption  {
 	display: block; 
 	text-align: center !important;
 	color: grey;
