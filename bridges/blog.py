@@ -43,7 +43,7 @@ REGEX_TYPE = type(re_compile(""))
 LICENSE_VERSION = "4.0"
 
 LICENSE_BASE_URL = "https://creativecommons.org/licenses/"
-LICENSE_END_URL = "%s/" % LICENSE_VERSION
+LICENSE_END_URL = f"{LICENSE_VERSION}/"
 
 LICENSE_IMAGE_BASE_URL = "https://licensebuttons.net/i/l/"
 LICENSE_IMAGE_END_URL = "transparent/00/00/00/88x31.png"
@@ -224,21 +224,19 @@ class Time:
 
         if format_ == Time.Format.BLOG:
             if self._time.minute == 0 and self._time.hour == 0:
-                return "%i %s" % (
-                    self._time.second,
-                    "Second" if self._time.second == 1 else "Seconds",
+                return (
+                    f"{self._time.second} "
+                    f"{'Second' if self._time.second == 1 else 'Seconds'}"
                 )
             elif self._time.hour == 0 and self._time.minute > 0:
                 minute = round_minute(self._time.minute, self._time.second)
-                return "%i %s" % (minute, "Minute" if minute == 1 else "Minutes")
+                return f"{minute} {'Minute' if minute == 1 else 'Minutes'}"
             elif self._time.hours > 0:
                 hour = round_hour(self._time.hour, self._time.minute)
                 minute = round_minute(self._time.minute, self._time.second)
-                return "%i %s %i %s" % (
-                    hour,
-                    "Hour" if hour == 1 else "Hours",
-                    minute,
-                    "Minute" if minute == 1 else "Minutes",
+                return (
+                    f"{hour} {'Hour' if hour == 1 else 'Hours'} {minute} "
+                    f"{'Minute' if minute == 1 else 'Minutes'}"
                 )
             return "∞ Millennia"
         return None
@@ -350,7 +348,7 @@ class PostMetadata:
                 else PostMetadata.VALIDATION_SCHEMA_WITHOUT_CODE
             )(json_loads(open(metadata_path, "r").read()))
         except MultipleInvalid as e:
-            warning("Validation of '%s' failed: %s" % (metadata_path, str(e)))
+            warning(f"Validation of '{metadata_path}' failed: {str(e)}")
             return None
 
         return PostMetadata._PostMetadata(
@@ -374,7 +372,7 @@ class PostMetadata:
                 else PostMetadata.VALIDATION_SCHEMA_WITHOUT_CODE
             )(json_loads(open(metadata_path, "r").read()))
         except (MultipleInvalid, JSONDecodeError) as e:
-            warning("Validation of '%s' failed: %s" % (metadata_path, str(e)))
+            warning(f"Validation of '{metadata_path}' failed: {str(e)}")
             return False
 
         return True
@@ -478,9 +476,7 @@ class Post:
             valid_text = True
             post_has_code = Post.has_code(open(text_path, "r").read())
         else:
-            warning(
-                "Validation of '%s' failed: %s" % (post_path, validation_result.error)
-            )
+            warning(f"Validation of '{post_path}' failed: {validation_result.error}")
 
         return valid_text and PostMetadata.valid(metadata_path, post_has_code)
 
@@ -508,7 +504,7 @@ class Post:
 
         for image in images:
             if not image.path.is_file():
-                warning("'%s' does not exist!" % (image.path))
+                warning(f"'{image.path}' does not exist!")
 
         return images
 
