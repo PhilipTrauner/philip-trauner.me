@@ -178,15 +178,6 @@ class Author:
     name: str
     email: str
 
-    def __eq__(self, other):
-        return type(other) is Author and other.__dict__ == self.__dict__
-
-    def __repr__(self):
-        return "%s <%s>" % (self.name, self.email)
-
-    def __str__(self):
-        return self.name
-
 
 class Date:
     def __init__(self, unix_date: int) -> None:
