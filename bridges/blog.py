@@ -49,7 +49,7 @@ LICENSE_IMAGE_BASE_URL = "https://licensebuttons.net/i/l/"
 LICENSE_IMAGE_END_URL = "transparent/00/00/00/88x31.png"
 
 VALID_MARKDOWN = re_compile(r"^#.*$")
-IMAGE_REWRITE: List[REGEX_TYPE] = [
+IMAGE_REWRITE: List[RegexPattern] = [
     re_compile(r"(<img.*src=\")([^\"]*)(.*)"),  # <img src="image.png" />
     re_compile(r"(!\[.*\]\()([^)]*)(\))"),  # ![](image.png)
 ]
@@ -65,7 +65,7 @@ DEFAULT = re_compile(r".*")
 
 WORDS_PER_MINUTE = 275
 
-READ_TIME_IMPACT: Dict[REGEX_TYPE, Tuple[float, float, float]] = {
+READ_TIME_IMPACT: Dict[RegexPattern, Tuple[float, float, float]] = {
     # (Per occurence, Per line, Per word)
     IMAGE: (8.0, 0.0, 0.0),
     # There does not appear to be any code reading time statistics
@@ -76,7 +76,7 @@ READ_TIME_IMPACT: Dict[REGEX_TYPE, Tuple[float, float, float]] = {
     DEFAULT: (0.0, 0.0, 1.0 / (WORDS_PER_MINUTE / 60.0)),
 }
 
-READ_TIME_IMPACT_NAME: Dict[REGEX_TYPE, Tuple[str, str]] = {
+READ_TIME_IMPACT_NAME: Dict[RegexPattern, Tuple[str, str]] = {
     IMAGE: ("Image", "Images"),
     CODE_BLOCK: ("Code Block", "Code Blocks"),
     CAPTION: ("Caption", "Captions"),
@@ -116,7 +116,7 @@ class ValidationResult:
     exception: Optional[Any] = None
 
 
-def validate(validators: List[Validator]) -> Tuple[bool, str]:
+def validate(validators: List[Validator]) -> ValidationResult:
     for validator in validators:
         try:
             if not validator.callable_():
@@ -144,7 +144,7 @@ class CodeLicense(License):
         super().__init__(name, description_url)
 
 
-TEXT_LICENSES: Dict[str, License] = {
+TEXT_LICENSES: Dict[str, TextLicense] = {
     "by-nc-nd": TextLicense(
         "Attribution-NonCommercial-NoDerivatives 4.0 International",
         *_cc_license_urls("by-nc-nd")
@@ -215,7 +215,7 @@ class Time:
 
         return Time(int(hours[0]), int(minutes[0]), int(seconds), int(microseconds))
 
-    def format_(self, format_=Format.BLOG) -> Union[str, None]:
+    def format_(self, format_=Format.BLOG) -> Optional[str]:
         def round_minute(minute, second):
             return minute if second < 30 else minute + 1
 
@@ -268,15 +268,15 @@ class Time:
 class ReadTime:
     def __init__(
         self,
-        time_breakdown: Dict[REGEX_TYPE, Tuple[int, Time]],
+        time_breakdown: Dict[RegexPattern, Tuple[int, Time]],
         overall_time: Time,
         word_count: int,
     ) -> None:
-        self.time_breakdown: Dict[REGEX_TYPE, Tuple[int, Time]] = time_breakdown
+        self.time_breakdown: Dict[RegexPattern, Tuple[int, Time]] = time_breakdown
         self.overall_time = overall_time
         self.word_count = word_count
 
-        self.pretty_time_breakdown = {
+        self.pretty_time_breakdown: Dict[str, Optional[str]] = {
             READ_TIME_IMPACT_NAME[regex][0]
             if time_breakdown[regex][0] <= 1
             else READ_TIME_IMPACT_NAME[regex][1]: time_breakdown[regex][1].format_(
@@ -296,7 +296,7 @@ class ReadTimeHint:
 class Image:
     @dataclass
     class _Image:
-        path: str
+        path: Path
         url: Url
 
     def __new__(cls: Type[Image], path: Path, image_base_url: Url):
@@ -398,7 +398,7 @@ class Post:
 
             unmodified_post_content = open(post_path / BLOG_TEXT, "r").read()
 
-            images: List[Image] = []
+            images: List[Image._Image] = []
             if content_path.is_dir():
                 images = Post.find_images(
                     unmodified_post_content, content_path, image_base_url
@@ -409,7 +409,9 @@ class Post:
             )
             post_content_split = modified_post_content.split("\n")
 
-            post_metadata = PostMetadata(
+            post_metadata: Optional[  # type: ignore
+                PostMetadata._PostMetadata
+            ] = PostMetadata(
                 post_path / BLOG_METADATA, Post.has_code(unmodified_post_content)
             )
 
@@ -493,8 +495,8 @@ class Post:
     def find_images(
         post_content: str, content_path: Path, image_base_url: Url
     ) -> List[Image._Image]:
-        images = [
-            Image(
+        images: List[Image._Image] = [
+            Image(  # type: ignore
                 content_path
                 / Path(image_tuple[0] if image_tuple[0] else image_tuple[1]),
                 image_base_url,
@@ -515,7 +517,7 @@ class Post:
     @staticmethod
     def read_time(
         post_content: str, read_time_hint: ReadTimeHint
-    ) -> Tuple[Dict[REGEX_TYPE, Tuple[int, Time]], Time]:
+    ) -> Tuple[Dict[RegexPattern, Tuple[int, Time]], Time, int]:
         overall_time = Time()
         time_breakdown = {}
 
@@ -610,9 +612,9 @@ class Blog:
             recursive=True,
         )
 
-        self._posts: List[Post] = []
-        self._tags: Dict[str, List[Post]] = {}
-        self._authors: Dict[Author, List[Post]] = {}
+        self._posts: List[Post._Post] = []
+        self._tags: Dict[str, List[Post._Post]] = {}
+        self._authors: Dict[str, List[Post._Post]] = {}
         self._rss: str = ""
 
         self.lock = Lock()
@@ -679,15 +681,17 @@ class Blog:
     def __refresh(self) -> None:
         info("Refreshing!")
 
-        posts = []
-        tags = {}
-        authors = {}
+        posts: List[Post._Post] = []
+        tags: Dict[str, List[Post._Post]] = {}
+        authors: Dict[str, List[Post._Post]] = {}
 
         feed_items = []
 
         for folder in self.post_path.iterdir():
             if folder.is_dir():
-                post = Post(folder, self.image_base_url)
+                post: Optional[Post._Post] = Post(  # type: ignore
+                    folder, self.image_base_url
+                )
 
                 # To-Do: Use in-line assignment once Python 3.8 rolls around
                 if post is not None:

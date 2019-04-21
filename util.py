@@ -1,6 +1,7 @@
 from typing import Callable, List, Tuple, Type, Dict, Any, Union, Iterable
 from sys import exc_info
 from traceback import print_exception
+from typing import Sequence
 
 WARNING_COLOR = "\033[33m"
 EMPHASIS_COLOR = "\033[35m"
@@ -34,8 +35,8 @@ def capture_trace():
     print_exception(exc_type, exc_value, exc_traceback)
 
 
-def index_range_from_pair(iterable: Iterable, pair: Tuple[int, int]):
-    return iterable[pair[0] : pair[1]]
+def index_range_from_pair(sequence: Sequence[Any], pair: Tuple[int, int]):
+    return sequence[pair[0] : pair[1]]
 
 
 def traverse_collection(collection: Union[List, Dict], index: List[Any]):
