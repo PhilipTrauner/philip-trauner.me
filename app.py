@@ -13,53 +13,74 @@ from spotipy.oauth2 import SpotifyClientCredentials as SCC
 from htmlmin.minify import html_minify
 from urlpath import URL as Url
 
-from util import safe_execute
 
 from bridges.github import GitHub, Repo, Org
 from bridges.spotify import Spotify, Playlist
 from bridges.blog import Blog
+from env import build_env
+from env import Default
 
 NAME = "philip-trauner.me"
 
 
-env = SimpleNamespace()
-ENV_VAR_PREFIX = "PT_"
-DEFAULTS = {
-    "ADDRESS": "0.0.0.0",
-    "PORT": 5000,
-    "DEBUG": False,
-    "STATIC_HANDLER": True,
-    "TEMPLATE_PATH": "template",
-    "STATIC_URL": "https://static.philip-trauner.me",
-    "BLOG_STATIC_URL": "https://blog.philip-trauner.me",
-    "RSS_BASE_URL": "https://philip-trauner.me/blog/post",
-    "RSS_URL": "https://philip-trauner.me/blog/rss",
-    "ENABLE_GITHUB": False,
-    "GITHUB_USER": "PhilipTrauner",
-    "LIPSUM_GITHUB": True,
-    "ENABLE_SPOTIFY": False,
-    "SPOTIFY_USER": "philip.trauner",
-    "SPOTIFY_CLIENT_ID": None,
-    "SPOTIFY_CLIENT_SECRET": None,
-    "LIPSUM_SPOTIFY": True,
-}
-for var in DEFAULTS:
-    setattr(env, var.lower(), DEFAULTS[var])
-for var in environ:
-    if var.startswith(ENV_VAR_PREFIX):
-        value = environ[var]
-        setattr(
-            env,
-            var.lstrip(ENV_VAR_PREFIX).lower(),
-            safe_execute(value, (ValueError, SyntaxError), lambda: literal_eval(value)),
-        )
+def bool_validator(value: Any) -> bool:
+    return type(value) is bool
+
+
+def url_transform(value: Any) -> Url:
+    return Url(value)
+
+
+env = build_env(
+    "PT_",
+    {
+        "ADDRESS": Default("0.0.0.0"),
+        "PORT": Default(5000, validator=lambda value: type(value) is int and value > 0),
+        "DEBUG": Default(False, validator=bool_validator),
+        "STATIC_HANDLER": Default(True, validator=bool_validator),
+        "TEMPLATE_PATH": Default(
+            Path("template").resolve(),
+            transformer=lambda value: Path(value).resolve(),
+            validator=lambda value: value.is_dir(),
+        ),
+        "BLOG_PATH": Default(
+            Path("blog").resolve(),
+            transformer=lambda value: Path(value).resolve(),
+            validator=lambda value: value.is_dir(),
+        ),
+        "STATIC_URL": Default(
+            "https://static.philip-trauner.me", transformer=url_transform
+        ),
+        "BLOG_STATIC_URL": Default(
+            "https://blog.philip-trauner.me", transformer=url_transform
+        ),
+        "RSS_BASE_URL": Default(
+            "https://philip-trauner.me/blog/post", transformer=url_transform
+        ),
+        "RSS_URL": Default(
+            "https://philip-trauner.me/blog/rss", transformer=url_transform
+        ),
+        "ENABLE_GITHUB": Default(False, validator=bool_validator),
+        "GITHUB_USER": Default("PhilipTrauner"),
+        "LIPSUM_GITHUB": Default(True, validator=bool_validator),
+        "ENABLE_SPOTIFY": Default(False, validator=bool_validator),
+        "SPOTIFY_USER": Default("philip.trauner"),
+        "SPOTIFY_CLIENT_ID": Default(
+            None, validator=lambda value: value is None or type(value) is str
+        ),
+        "SPOTIFY_CLIENT_SECRET": Default(
+            None, validator=lambda value: value is None or type(value) is str
+        ),
+        "LIPSUM_SPOTIFY": Default(True, validator=bool_validator),
+    },
+)
 
 
 app = Sanic(NAME)
 
 STATIC_URL = env.static_url
 BLOG_STATIC_URL = env.blog_static_url
-BLOG_PATH = Path("blog")
+BLOG_PATH = env.blog_path
 
 if env.static_handler:
     app.static("/static", "./dist")
@@ -71,7 +92,9 @@ STATIC_URL = Url(STATIC_URL)
 BLOG_STATIC_URL = Url(BLOG_STATIC_URL)
 
 jinja_env = Environment(
-    loader=FileSystemLoader(env.template_path), trim_blocks=True, lstrip_blocks=True
+    loader=FileSystemLoader(str(env.template_path)),
+    trim_blocks=True,
+    lstrip_blocks=True,
 )
 
 spotify = (
