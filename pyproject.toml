@@ -18,7 +18,7 @@ rfeed = { git = "https://github.com/PhilipTrauner/rfeed.git" }
 django-htmlmin = "^0.10.0"
 urlpath = "^1.1"
 voluptuous = "^0.11.5"
-markdown = { git = "https://github.com/PhilipTrauner/markdown.git"}
+markdown = "3.1"
 pymdown-extensions = "6.0"
 beautifulsoup4 = "^4.6.3"
 
