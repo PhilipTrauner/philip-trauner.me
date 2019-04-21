@@ -29,7 +29,7 @@ server {
 	root /static/dist;
 
 	location ~*  \.(jpg|jpeg|png|gif|ico|svg)$ {
-		expires 5d;
+		expires 10d;
 	}
 }
 
