@@ -1,13 +1,11 @@
 from ast import literal_eval
-from inspect import getmodule
-from inspect import stack
 from os import environ
-from typing import Optional
-from typing import List
-from typing import Callable
-from typing import Any
-from typing import Dict
 from types import SimpleNamespace
+from typing import Any
+from typing import Callable
+from typing import Dict
+from typing import List
+from typing import Optional
 
 from util import safe_execute
 
