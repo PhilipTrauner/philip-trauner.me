@@ -13,8 +13,7 @@ RUN set -eux; \
 	find / -type d -name __pycache__ -prune -exec rm -rf '{}' \;; \
 	rm -rf /usr/local/lib/python3.7/site-packages/*; \
 	rm -rf /var/virtualenvs/philip-trauner.me-py3.7/lib/python3.7/site-packages/pip/; \
-	rm -rf /var/virtualenvs/philip-trauner.me-py3.7/src/rfeed/.git; \
-	rm -rf /lib/apk;
+	rm -rf /var/virtualenvs/philip-trauner.me-py3.7/src/rfeed/.git;
 
 COPY . /app/
 WORKDIR /app
