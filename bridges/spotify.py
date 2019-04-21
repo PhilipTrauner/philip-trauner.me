@@ -1,6 +1,7 @@
+from _thread import start_new_thread  # type: ignore
 from time import time
-from _thread import start_new_thread
-from typing import List, Optional
+from typing import List
+from typing import Optional
 
 from spotipy import Spotify as Spotipy
 
@@ -35,7 +36,7 @@ class Spotify:
     @property
     def playlists(self) -> List[Playlist]:
         if not self.disable_fetch:
-            if self.last_retrieve != None:
+            if self.last_retrieve is not None:
                 if (self.last_retrieve + self.refresh_delay) < time():
                     self.last_retrieve = time()
                     start_new_thread(self._fetch_playlists, ())

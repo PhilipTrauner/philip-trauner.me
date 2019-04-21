@@ -1,9 +1,12 @@
-from requests import get
-from time import time
-from _thread import start_new_thread
+from _thread import start_new_thread  # type: ignore
 from socket import gaierror
-from typing import Any, List, Dict, Union
+from time import time
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Union
 
+from requests import get
 from requests.models import Response
 
 _get = get
@@ -113,7 +116,7 @@ class GitHub:
     @property
     def repos(self) -> List[Repo]:
         if not self.disable_fetch:
-            if self.repo_last_retrieve != None:
+            if self.repo_last_retrieve is not None:
                 if (self.repo_last_retrieve + self.refresh_delay) < time():
                     self.repo_last_retrieve = time()
                     start_new_thread(self._fetch_repos, ())
@@ -125,7 +128,7 @@ class GitHub:
     @property
     def orgs(self) -> List[Org]:
         if not self.disable_fetch:
-            if self.org_last_retrieve != None:
+            if self.org_last_retrieve is not None:
                 if (self.org_last_retrieve + self.refresh_delay) < time():
                     self.org_last_retrieve = time()
                     start_new_thread(self._fetch_orgs, ())

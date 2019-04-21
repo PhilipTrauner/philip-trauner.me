@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 from re import compile as re_compile
 
 SYNTAX_HIGHLIGHTING = re_compile(r".markdown-body \.pl-\D.*\n([^}]*\n)*}")

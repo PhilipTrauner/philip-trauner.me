@@ -1,22 +1,24 @@
-from types import SimpleNamespace
 from pathlib import Path
+from types import SimpleNamespace
+from typing import Any
 from urllib.parse import unquote
-from os import environ
-from os.path import abspath
-from ast import literal_eval
 
+from htmlmin.minify import html_minify
+from jinja2 import Environment
+from jinja2 import FileSystemLoader
 from sanic import Sanic
-from sanic.response import html, text
-from jinja2 import Environment, FileSystemLoader, select_autoescape
+from sanic.response import html
+from sanic.response import text
 from spotipy import Spotify as Spotipy
 from spotipy.oauth2 import SpotifyClientCredentials as SCC
-from htmlmin.minify import html_minify
 from urlpath import URL as Url
 
-
-from bridges.github import GitHub, Repo, Org
-from bridges.spotify import Spotify, Playlist
 from bridges.blog import Blog
+from bridges.github import GitHub
+from bridges.github import Org
+from bridges.github import Repo
+from bridges.spotify import Playlist
+from bridges.spotify import Spotify
 from env import build_env
 from env import Default
 

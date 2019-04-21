@@ -1,44 +1,45 @@
 from __future__ import annotations
 
-from pathlib import Path
-from threading import Lock
-from json import loads as json_loads
-from json.decoder import JSONDecodeError
+from dataclasses import dataclass
 from datetime import datetime
-from re import compile as re_compile
-from re import MULTILINE
 from datetime import time as _time
-from typing import Callable, List, Optional, Tuple, Type, Dict, Any, Union, Iterable
 from enum import Enum
 from functools import partial
-from dataclasses import dataclass
-
-
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler as WatchdogFileSystemEventHandler
-
-from markdown import Markdown as BaseMarkdown
-
-from urlpath import URL as Url
-
-from rfeed import Feed, Item, Guid, Category
-
-from voluptuous import Required, Schema, Range, All, Optional, MultipleInvalid
-from voluptuous import Any as VolAny
+from json import loads as json_loads
+from json.decoder import JSONDecodeError
+from pathlib import Path
+from re import compile as re_compile
+from re import Pattern as RegexPattern  # type: ignore
+from threading import Lock
+from typing import Any
+from typing import Callable
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Tuple
+from typing import Type
+from typing import Union
 
 from bs4 import BeautifulSoup
+from markdown import Markdown as BaseMarkdown
+from rfeed import Category
+from rfeed import Feed
+from rfeed import Guid
+from rfeed import Item
+from urlpath import URL as Url
+from voluptuous import All
+from voluptuous import Any as VolAny
+from voluptuous import MultipleInvalid
+from voluptuous import Optional as VolOptional
+from voluptuous import Range
+from voluptuous import Schema
+from watchdog.events import FileSystemEventHandler as WatchdogFileSystemEventHandler
+from watchdog.observers import Observer
 
-from util import (
-    safe_execute,
-    capture_trace,
-    warning,
-    info,
-    all_match_condition,
-    index_range_from_pair,
-    traverse_collection,
-)
-
-REGEX_TYPE = type(re_compile(""))
+from util import capture_trace
+from util import index_range_from_pair
+from util import info
+from util import warning
 
 LICENSE_VERSION = "4.0"
 
@@ -147,11 +148,11 @@ class CodeLicense(License):
 TEXT_LICENSES: Dict[str, TextLicense] = {
     "by-nc-nd": TextLicense(
         "Attribution-NonCommercial-NoDerivatives 4.0 International",
-        *_cc_license_urls("by-nc-nd")
+        *_cc_license_urls("by-nc-nd"),
     ),
     "by-nc-sa": TextLicense(
         "Attribution-NonCommercial-ShareAlike 4.0 International",
-        *_cc_license_urls("by-nc-sa")
+        *_cc_license_urls("by-nc-sa"),
     ),
     "by-nc": TextLicense(
         "Attribution-NonCommercial 4.0 International", *_cc_license_urls("by-nc")
@@ -201,7 +202,7 @@ class Time:
         minutes = divmod(hours[1], 60)
         seconds = minutes[1]
         microseconds = (
-            ((number - int(number)) * 1000000) if type(number) is float else 0
+            ((number - int(number)) * 1_000_000) if type(number) is float else 0
         )
 
         return Time(int(hours[0]), int(minutes[0]), int(seconds), int(microseconds))
@@ -245,7 +246,7 @@ class Time:
                 (self._time.hour + other.hour) * 3600
                 + (self._time.minute + other.minute) * 60
                 + (self._time.second + other.second)
-                + (self._time.microsecond + other.microsecond) / 1000000
+                + (self._time.microsecond + other.microsecond) / 1_000_000
             )
         return NotImplemented
 
@@ -303,10 +304,10 @@ class PostMetadata:
         "author": str,
         "date": All(int, Range(min=1)),
         "tags": [str],
-        Optional("read_time_hint", default={"excluded_tags": READ_TIME_IGNORED_TAGS}): {
-            "excluded_tags": [str]
-        },
-        Optional("hidden", default=False): bool,
+        VolOptional(
+            "read_time_hint", default={"excluded_tags": READ_TIME_IGNORED_TAGS}
+        ): {"excluded_tags": [str]},
+        VolOptional("hidden", default=False): bool,
     }
     VALIDATION_SCHEMA_WITHOUT_CODE = Schema(
         {**BASE_VALIDATION_SCHEMA, "license": {**TEXT_LICENSE}}, required=True
@@ -406,24 +407,25 @@ class Post:
                 post_path / BLOG_METADATA, Post.has_code(unmodified_post_content)
             )
 
-            return Post._Post(
-                post_path.name,
-                post_content_split[0].lstrip("#").strip(),
-                post_metadata,
-                Blog.MARKDOWN.render("\n".join(post_content_split[1:])),
-                images,
-                Post.has_code(unmodified_post_content),
-                ReadTime(
-                    *Post.read_time(
-                        unmodified_post_content, post_metadata.read_time_hint
-                    )
-                ),
+            return (
+                Post._Post(
+                    post_path.name,
+                    post_content_split[0].lstrip("#").strip(),
+                    post_metadata,
+                    Blog.MARKDOWN.render("\n".join(post_content_split[1:])),
+                    images,
+                    Post.has_code(unmodified_post_content),
+                    ReadTime(
+                        *Post.read_time(
+                            unmodified_post_content, post_metadata.read_time_hint
+                        )
+                    ),
+                )
+                if post_metadata is not None
+                else None
             )
         else:
             return None
-
-    def __repr__(self) -> str:
-        return '<Post title="%s" name="%s" id=%s>' % (self.title, self.name, id(self))
 
     @staticmethod
     def valid(post_path: Path) -> bool:
@@ -477,7 +479,7 @@ class Post:
     def rewrite_images(post_content: str, image_base_url: str) -> str:
         for regex in IMAGE_REWRITE:
             post_content = regex.sub(
-                "\g<1>%s/\g<2>\g<3>" % image_base_url, post_content
+                r"\g<1>%s/\g<2>\g<3>" % image_base_url, post_content
             )
 
         return post_content
@@ -704,12 +706,12 @@ class Blog:
                         )
 
                         for tag in post.post_metadata.tags:
-                            if not tag in tags:
+                            if tag not in tags:
                                 tags[tag] = []
                             tags[tag].append(post)
 
                         author = post.post_metadata.author
-                        if not author in authors:
+                        if author not in authors:
                             authors[author] = []
                         authors[author].append(post)
 
