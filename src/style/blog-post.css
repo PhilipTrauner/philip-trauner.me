@@ -79,6 +79,46 @@ figcaption  {
 	}	
 }
 
+@media print {
+	#navigation-links {
+		display: none !important;
+	}
+
+	.utterances {
+		display: none !important;
+	}
+
+	footer {
+		display: none !important;
+	}
+
+	.separator {
+		display: none !important;
+	}
+
+	.hidden {
+		display: none !important;
+	}
+
+	.license {
+		border-bottom: unset !important;
+	}
+
+	.heading-container {
+		margin-top: 0;
+	}
+
+	.content {
+		margin: 0 0 0 0 !important;
+		-webkit-print-color-adjust: exact;
+		print-color-adjust: exact;
+	}
+
+	pre {
+		overflow: hidden !important;
+	}
+}
+
 details, summary {
 	margin-bottom: 10px;
 }
