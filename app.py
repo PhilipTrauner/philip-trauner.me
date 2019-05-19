@@ -62,6 +62,9 @@ env = build_env(
         "RSS_URL": Default(
             "https://philip-trauner.me/blog/rss", transformer=url_transform
         ),
+        "ANALYTICS_URL": Default(
+            "https://analytics.philip-trauner.me", transformer=url_transform
+        ),
         "ENABLE_GITHUB": Default(False, validator=bool_validator),
         "GITHUB_USER": Default("PhilipTrauner"),
         "LIPSUM_GITHUB": Default(True, validator=bool_validator),
@@ -155,6 +158,7 @@ async def home(request, **kwargs):
                 playlists=spotify.playlists,
                 posts=blog_.posts,
                 rss_url=env.rss_url,
+                analytics_url=env.analytics_url,
             )
         )
     )
