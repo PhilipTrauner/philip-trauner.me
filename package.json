@@ -1,0 +1,23 @@
+{
+  "name": "philip-trauner.me",
+  "version": "1.0.0",
+  "description": "This is the code for my website. There's not much to see, really.",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PhilipTrauner/philip-trauner.me.git"
+  },
+  "author": "Philip Trauner",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/PhilipTrauner/philip-trauner.me/issues"
+  },
+  "homepage": "https://github.com/PhilipTrauner/philip-trauner.me#readme",
+  "dependencies": {
+    "pygments-github-css": "PhilipTrauner/pygments-github-css"
+  },
+  "devDependencies": {
+    "generate-github-markdown-css": "^4.0.0",
+    "uglifycss": "^0.0.29"
+  }
+}

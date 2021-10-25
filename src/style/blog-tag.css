@@ -1,0 +1,22 @@
+.warning {
+	margin-top: 1em;
+}
+
+.back-arrow {
+	font-size: 24px;
+	margin-left: -48px;
+	position: absolute;
+	color: #0366d6;
+}
+
+@media screen and (max-width: 1024px) {
+	.back-arrow {
+		display: none;
+	}
+}
+
+.post h2 {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}

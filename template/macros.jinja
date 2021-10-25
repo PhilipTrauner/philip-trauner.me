@@ -1,0 +1,49 @@
+{% macro tag_list(post) -%}
+<div class="tags">
+{% for tag in post.metadata.tags %}
+	<a class="tag" href="blog/tag/{{ tag }}">{{ tag }}</a>
+{% endfor %}
+</div>
+{%- endmacro %}
+
+{% macro post_list(posts) -%}
+<div>
+	<ul class="post-list">
+		{% for post in posts %}
+		{% if not post.metadata.hidden %}
+		<li class="post">
+			<a href="blog/post/{{ post.name }}"><h2 id="post-{{ post.name }}">{{ post.title }}</h2></a>
+			{{ metadata(post) }}
+			{{ tag_list(post) }}
+			<p>{{ post.metadata.description }}</p>
+		</li>
+		{% endif %}
+		{% endfor %}
+	</ul>
+</div>
+{%- endmacro %}
+
+{% macro metadata(post) -%}
+<div class="metadata">
+	<span>{{ post.metadata.date.strftime('%B %d, %Y') }}</span>
+	<span class="metadata-seperator">·</span>
+	<span>{{ post.read_time.word_count }} Words</span>
+	<span class="metadata-seperator">·</span>
+	<span>{{ post.read_time.overall_time.format_() }}</span>
+</div>
+{%- endmacro %}
+
+{% macro back_arrow(location) -%}
+<a href="{{ location }}">
+	<span class="back-arrow" alt="Back">⇤</span>
+</a>
+{%- endmacro %}
+
+{% macro warning(text) -%}
+<div class="warning">
+	<svg height="32" width="32" viewBox="0 0 16 16">
+		<use xlink:href="#warning"></use>
+	</svg>
+	<p>{{ text }}</p>
+</div>
+{%- endmacro %}

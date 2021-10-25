@@ -1,0 +1,12 @@
+__pycache__
+.DS_Store
+node_modules
+src/style/github-markdown-base.css
+src/style/github-markdown-processed.css
+src/style/github.css
+dist/
+.env
+.envrc
+/blog
+.mypy_cache/
+.venv

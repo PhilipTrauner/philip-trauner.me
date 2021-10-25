@@ -1,0 +1,33 @@
+[tool.poetry]
+name = "philip-trauner.me"
+version = "0.1.0"
+readme = "README.md"
+description = ""
+authors = ["Philip Trauner <philip.trauner@arztpraxis.io>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+Jinja2 = "^2.11"
+requests = "^2.24"
+sanic = "^20.9"
+spotipy = "^2.16"
+pygments = "^2.7"
+rfeed = { git = "https://github.com/svpino/rfeed.git" }
+beautifulsoup4 = "^4.9"
+watchdog = "^0.10"
+result = { git = "https://github.com/dbrgn/result.git" }
+pydantic = {extras = ["email"], version = "^1.7.2"}
+environs = "^9.0.0"
+pymdown-extensions = "^8.0.1"
+furl = "^2.1.0"
+html5lib = "^1.1"
+
+[tool.poetry.dev-dependencies]
+mypy = "^0.910"
+black = "^20.8b1"
+pre-commit = "^2.4"
+bandit = "^1.6"
+flake8 = "^3.8"
+types-requests = "^2.25.11"
+types-Markdown = "^3.3.6"

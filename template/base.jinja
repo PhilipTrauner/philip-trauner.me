@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" prefix="{% block prefix %}og: http://ogp.me/ns# {% endblock %}">
+
+<head>
+	{% block head %}
+	<title>{% block title %}{% endblock %} - Philip Trauner</title>
+	<meta charset="utf-8" />
+	<meta name="author" content="Philip Trauner">
+	<meta name="viewport" content="width=device-width,initial-scale=1" />
+	<meta name="description" content="{% block description %}Personal website of Philip Trauner.{% endblock %}" />
+
+	<meta name="twitter:card" content="summary" />
+	<meta name="twitter:site" content="@PhilipTrauner" />
+
+	<meta property="og:image" content="{% block image %}https://secure.gravatar.com/avatar/8325743a54507f02086dbe03d282c63c?s=500{% endblock %}" />
+	<meta property="og:title" content="{{ self.title() }}" />
+	<meta property="og:description" content="{{ self.description() }}" />
+	<meta property="og:site_name" content="Philip Trauner" />
+
+	<style>{% include "style/base.css" %}</style>
+
+	<link rel="icon" href="{{ public_url }}/icon/favicon.png" />
+	<link rel="apple-touch-icon" href="{{ public_url }}/icon/touch-icon.png" />
+	{% endblock %}
+</head>
+
+<body>
+	<svg class="hidden">
+		<symbol id="warning">
+			<path fill-rule="evenodd" d="M8.893 1.5c-.183-.31-.52-.5-.887-.5s-.703.19-.886.5L.138 13.499a.98.98 0 0 0 0 1.001c.193.31.53.501.886.501h13.964c.367 0 .704-.19.877-.5a1.03 1.03 0 0 0 .01-1.002L8.893 1.5zm.133 11.497H6.987v-2.003h2.039v2.003zm0-3.004H6.987V5.987h2.039v4.006z"></path>
+		</symbol>
+	</svg>
+	{% block header %}{% endblock %}
+	<div class="content">
+		{% block content %}{% endblock %}
+		<hr class="separator" />
+		<footer>
+			{% block impressum %}
+			<div class="left-column">
+				<h2>Impressum</h2>
+				<p>Philip Trauner<br>Hasnernstraße 14<br>1160 Vienna</p>
+			</div>
+			{% endblock %}
+			<div class="right-column">
+				<h2>Contact</h2>
+				<p>philip.trauner[at]arztpraxis[dot]io</p>
+				<a href="https://twitter.com/PhilipTrauner">
+					<img src="{{ public_url }}/social/twitter.png" alt="Twitter" />
+				</a>
+				<a href="https://github.com/PhilipTrauner">
+					<img src="{{ public_url }}/social/github.png" alt="GitHub" />
+				</a>
+				<a href="http://last.fm/user/PhilipTrauner">
+					<img src="{{ public_url }}/social/last-fm.png" alt="last.fm" />
+				</a>
+				<a href="https://open.spotify.com/user/philip.trauner">
+					<img src="{{ public_url }}/social/spotify.png" alt="Spotify" />
+				</a>
+				<a href="https://linkedin.com/in/philip-trauner/">
+					<img src="{{ public_url }}/social/linkedin.png" alt="LinkedIn" />
+				</a>
+			</div>
+		</footer>
+	</div>
+</body>
+</html>
