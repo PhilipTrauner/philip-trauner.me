@@ -1,0 +1,27 @@
+{% extends "base.jinja" %}
+{% import "macros.jinja" as macros %}
+
+{% block head %}
+    {{ super() }}
+    <style>{% include "style/blog-tag.css" %}</style>
+{% endblock %}
+
+{% block title %}
+{% if posts -%}
+Tag: {{ tag -}}
+{% else %}
+Unknown tag
+{% endif %}
+{% endblock %}
+
+{% block content %}
+{{ macros.back_arrow("/blog") }}
+{% if posts %}
+	<div>
+		{{ macros.post_list(posts) }}
+	</div>
+{% else %}
+	{{ macros.warning("Unknown tag :(") }}
+{% endif %}
+
+{% endblock %}
