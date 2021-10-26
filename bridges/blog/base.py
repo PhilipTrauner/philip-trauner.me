@@ -17,6 +17,37 @@ from bridges.blog.rss import build_feed
 from bridges.blog.rss import FeedMetadata
 
 
+class RwLock:
+    def __init__(self) -> None:
+        self._count = 0
+        self._counter_lock = Lock()
+        self._write_lock = Lock()
+
+    def read_acquire(self) -> None:
+        self._counter_lock.acquire()
+        self._count += 1
+
+        if self._count == 1:
+            self._write_lock.acquire()
+
+        self._counter_lock.release()
+
+    def read_release(self) -> None:
+        self._counter_lock.acquire()
+        self._count -= 1
+
+        if self._count == 0:
+            self._write_lock.release()
+
+        self._counter_lock.release()
+
+    def write_acquire(self) -> None:
+        self._write_lock.acquire()
+
+    def write_release(self) -> None:
+        self._write_lock.release()
+
+
 class Blog:
     class _FileSystemEventHandler(WatchdogFileSystemEventHandler):
         def __init__(self, method: Callable) -> None:
@@ -56,7 +87,7 @@ class Blog:
         self._tags: dict[str, list[Post]] = {}
         self._rss: str = ""
 
-        self.lock = Lock()
+        self.lock = RwLock()
 
         self.__refresh()
 
@@ -65,47 +96,47 @@ class Blog:
     def find_post(self, name: str) -> Post | None:
         post = None
 
-        self.lock.acquire()
+        self.lock.read_acquire()
         for post_ in self._posts:
             if post_.name == name:
                 post = post_
                 break
-        self.lock.release()
+        self.lock.read_release()
 
         return post
 
     def find_posts_by_tag(self, tag: str) -> list[Post]:
         posts = []
 
-        self.lock.acquire()
+        self.lock.read_acquire()
         for post_ in self._posts:
             if tag in post_.metadata.tags:
                 posts.append(post_)
-        self.lock.release()
+        self.lock.read_release()
 
         return posts
 
     @property
     def posts(self) -> list[Post]:
-        self.lock.acquire()
+        self.lock.read_acquire()
         posts = self._posts[:]
-        self.lock.release()
+        self.lock.read_release()
 
         return posts
 
     @property
     def tags(self) -> dict[str, list[Post]]:
-        self.lock.acquire()
+        self.lock.read_acquire()
         tags = self._tags.copy()
-        self.lock.release()
+        self.lock.read_release()
 
         return tags
 
     @property
     def rss(self) -> str:
-        self.lock.acquire()
+        self.lock.read_acquire()
         rss = self._rss
-        self.lock.release()
+        self.lock.read_release()
 
         return rss
 
@@ -137,7 +168,7 @@ class Blog:
             reverse=True,
         )
 
-        self.lock.acquire()
+        self.lock.write_acquire()
 
         self._posts = sorted_posts
         self._tags = tags
@@ -153,4 +184,4 @@ class Blog:
             ),
         ).rss()
 
-        self.lock.release()
+        self.lock.write_release()
