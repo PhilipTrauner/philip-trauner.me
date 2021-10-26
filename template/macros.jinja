@@ -1,7 +1,7 @@
 {% macro tag_list(post) -%}
 <div class="tags">
 {% for tag in post.metadata.tags %}
-	<a class="tag" href="blog/tag/{{ tag }}">{{ tag }}</a>
+	<a class="tag" href="/blog/tag/{{ tag }}">{{ tag }}</a>
 {% endfor %}
 </div>
 {%- endmacro %}
