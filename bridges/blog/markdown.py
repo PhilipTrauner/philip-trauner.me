@@ -93,13 +93,16 @@ def render(text: str) -> str:
 
         idx = POOL_BITMAP.index(True)
     finally:
+        # `.index` is guaranteed to only ever throw `ValueError`, therefor this
+        # is safe
+
         # Mark instance as used
-        POOL_BITMAP[idx] = False
+        POOL_BITMAP[idx] = False  # type: ignore
         POOL_BITMAP_LOCK.release()
         # Request creation of new instances
         HYDRATION_EVENT.set()
 
-    instance = POOL[idx]
+    instance = POOL[idx]  # type: ignore
 
     return instance.convert(text)
 
