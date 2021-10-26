@@ -6,6 +6,7 @@ from typing import Any
 from typing import Callable
 
 from result import Ok
+from rfeed import Feed
 from watchdog.events import FileSystemEventHandler as WatchdogFileSystemEventHandler
 from watchdog.observers import Observer
 
@@ -140,6 +141,19 @@ class Blog:
 
         return rss
 
+    def _build_feed(self, posts: list[Post]) -> Feed:
+        return build_feed(
+            posts,
+            FeedMetadata(
+                self.rss_title,
+                self.rss_url,
+                self.rss_description,
+                self.rss_language,
+                self.rss_base_url,
+                self.base_static_url,
+            ),
+        )
+
     def __refresh(self) -> None:
         info("Refreshing!")
 
@@ -172,16 +186,6 @@ class Blog:
 
         self._posts = sorted_posts
         self._tags = tags
-        self._rss = build_feed(
-            sorted_posts,
-            FeedMetadata(
-                self.rss_title,
-                self.rss_url,
-                self.rss_description,
-                self.rss_language,
-                self.rss_base_url,
-                self.base_static_url,
-            ),
-        ).rss()
+        self._rss = self._build_feed(sorted_posts).rss()
 
         self.lock.write_release()
