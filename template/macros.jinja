@@ -12,7 +12,7 @@
 		{% for post in posts %}
 		{% if not post.metadata.hidden %}
 		<li class="post">
-			<a href="blog/post/{{ post.name }}"><h2 id="post-{{ post.name }}">{{ post.title }}</h2></a>
+			<a href="/blog/post/{{ post.name }}"><h2 id="post-{{ post.name }}">{{ post.title }}</h2></a>
 			{{ metadata(post) }}
 			{{ tag_list(post) }}
 			<p>{{ post.metadata.description }}</p>
