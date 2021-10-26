@@ -15,8 +15,8 @@ poetry run python3 app.py
 mkdir -p philip-trauner.me
 cd philip-trauner.me
 # Download files required for Docker-based deployment
-wget https://raw.githubusercontent.com/PhilipTrauner/philip-trauner.me/master/docker-compose.yml
-wget -O .env https://raw.githubusercontent.com/PhilipTrauner/philip-trauner.me/master/.env.template
+wget https://raw.githubusercontent.com/PhilipTrauner/philip-trauner.me/main/docker-compose.yml
+wget -O .env https://raw.githubusercontent.com/PhilipTrauner/philip-trauner.me/main/.env.template
 # Inspect and edit `.env` file
 # Clone `blog` repository
 git clone https://github.com/PhilipTrauner/blog.git
