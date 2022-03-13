@@ -8,11 +8,11 @@ license = "MIT"
 
 [tool.poetry.dependencies]
 python = "^3.8"
-Jinja2 = "^2.11"
+Jinja2 = "^3.0.3"
 requests = "^2.24"
-sanic = "^20.9"
+sanic = "^20.12"
 spotipy = "^2.16"
-pygments = "^2.7"
+pygments = "^2.11.2"
 rfeed = { git = "https://github.com/svpino/rfeed.git" }
 beautifulsoup4 = "^4.9"
 watchdog = "^0.10"
@@ -25,7 +25,7 @@ html5lib = "^1.1"
 
 [tool.poetry.dev-dependencies]
 mypy = "^0.910"
-black = "^20.8b1"
+black = "^22.1.0"
 pre-commit = "^2.4"
 bandit = "^1.6"
 flake8 = "^3.8"
