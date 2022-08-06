@@ -242,10 +242,10 @@ six = ">=1.9"
 webencodings = "*"
 
 [package.extras]
-all = ["genshi", "chardet (>=2.2)", "lxml"]
-chardet = ["chardet (>=2.2)"]
-genshi = ["genshi"]
 lxml = ["lxml"]
+genshi = ["genshi"]
+chardet = ["chardet (>=2.2)"]
+all = ["lxml", "chardet (>=2.2)", "genshi"]
 
 [[package]]
 name = "httpcore"
@@ -603,7 +603,7 @@ use_chardet_on_py3 = ["chardet (>=3.0.2,<5)"]
 
 [[package]]
 name = "result"
-version = "0.7.0"
+version = "0.8.0"
 description = "A Rust-like result type for Python"
 category = "main"
 optional = false
@@ -617,7 +617,7 @@ typing-extensions = {version = "*", markers = "python_version < \"3.10\""}
 type = "git"
 url = "https://github.com/dbrgn/result.git"
 reference = "master"
-resolved_reference = "ae2db8a12c0e9ae8a86ff7b0880505904f79366b"
+resolved_reference = "eb9350f9dd20f67540946a5e0b315c673700b28d"
 
 [[package]]
 name = "rfc3986"
@@ -650,7 +650,7 @@ resolved_reference = "a4ccbcb40eb86d5a4bda26b4f49c3921b39be26e"
 
 [[package]]
 name = "sanic"
-version = "20.12.6"
+version = "20.12.7"
 description = "A web server and web framework that's written to go fast. Build fast. Run fast."
 category = "main"
 optional = false
@@ -1338,8 +1338,8 @@ rfc3986 = [
 ]
 rfeed = []
 sanic = [
-    {file = "sanic-20.12.6-py3-none-any.whl", hash = "sha256:3339036806e97fa78057627e1de5ee64f161b3164b6fbabbaeb1adaa745445e7"},
-    {file = "sanic-20.12.6.tar.gz", hash = "sha256:0109ad50f403664edddf62d99aec5f21b259c2c4a68246e99d390b121c364b6c"},
+    {file = "sanic-20.12.7-py3-none-any.whl", hash = "sha256:ec87a2011956813d9d2411c5d1284a72b383d760b6f316361a7c056df783154c"},
+    {file = "sanic-20.12.7.tar.gz", hash = "sha256:6ff1c900775eaf4c35f50261513cbf6134b3c38e620437c92ed1c712d4dbe0dd"},
 ]
 six = [
     {file = "six-1.16.0-py2.py3-none-any.whl", hash = "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"},
