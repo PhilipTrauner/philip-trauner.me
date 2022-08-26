@@ -8,9 +8,9 @@
 
 {% block title %}
 {% if posts -%}
-Tag: {{ tag -}}
+tag: {{ tag -}}
 {% else %}
-Unknown tag
+unknown tag
 {% endif %}
 {% endblock %}
 
@@ -21,7 +21,7 @@ Unknown tag
 		{{ macros.post_list(posts) }}
 	</div>
 {% else %}
-	{{ macros.warning("Unknown tag :(") }}
+	{{ macros.warning("unknown tag :(") }}
 {% endif %}
 
 {% endblock %}

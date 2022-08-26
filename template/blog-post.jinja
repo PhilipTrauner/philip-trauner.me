@@ -27,7 +27,7 @@
 {% if post -%}
 	{{ post.title -}}
 {% else %}
-	Post not found
+	post not found
 {% endif %}
 {% endblock %}
 
@@ -35,7 +35,7 @@
 {% if post -%}
 	{{ post.metadata.description -}}
 {% else -%}
-	This post has either been swept under the rug or has never existed in the first place. Let your imagination go wild! :)
+	this post has either been swept under the rug or has never existed in the first place :(
 {% endif %}
 {% endblock %}
 
@@ -54,8 +54,8 @@
 			<div class="heading-container">
 				<h1>{{ post.title }}</h1>
 				<span id="navigation-links">
-					<a href="{{ '/blog#post-' + post.name }}" alt="Home"><svg viewBox="0 0 15 15"><path fill-rule="evenodd" d="M16 9l-3-3V2h-2v2L8 1 0 9h2l1 5c0 .55.45 1 1 1h8c.55 0 1-.45 1-1l1-5h2zm-4 5H9v-4H7v4H4L2.81 7.69 8 2.5l5.19 5.19L12 14z"></path></svg></a>
-					<a href="{{ rss_url }}" alt="RSS"><svg viewBox="-2 0 15 15"><path fill-rule="evenodd" d="M2 13H0v-2c1.11 0 2 .89 2 2zM0 3v1a9 9 0 0 1 9 9h1C10 7.48 5.52 3 0 3zm0 4v1c2.75 0 5 2.25 5 5h1c0-3.31-2.69-6-6-6z"></path></svg></a>
+					<a href="{{ '/blog#post-' + post.name }}" alt="home"><svg viewBox="0 0 15 15"><path fill-rule="evenodd" d="M16 9l-3-3V2h-2v2L8 1 0 9h2l1 5c0 .55.45 1 1 1h8c.55 0 1-.45 1-1l1-5h2zm-4 5H9v-4H7v4H4L2.81 7.69 8 2.5l5.19 5.19L12 14z"></path></svg></a>
+					<a href="{{ rss_url }}" alt="rss"><svg viewBox="-2 0 15 15"><path fill-rule="evenodd" d="M2 13H0v-2c1.11 0 2 .89 2 2zM0 3v1a9 9 0 0 1 9 9h1C10 7.48 5.52 3 0 3zm0 4v1c2.75 0 5 2.25 5 5h1c0-3.31-2.69-6-6-6z"></path></svg></a>
 				</span>
 			</div>
 			{{ macros.metadata(post) }}
@@ -75,7 +75,7 @@
 				{{ post.metadata.license_.text.value.name }}
 				</a>
 				{% if post.metadata.license_.code %}
-					(only applies to text, code license: <a href="{{ post.metadata.license_.code.value.description_url }}" alt="License">{{ post.metadata.license_.code.value.name }}</a>)
+					(only applies to text, code license: <a href="{{ post.metadata.license_.code.value.description_url }}" alt="license">{{ post.metadata.license_.code.value.name }}</a>)
 				{% endif %}
 			</span>
 		</div>
@@ -87,6 +87,6 @@
 			async>
 	</script>
 {% else %}
-	{{ macros.warning("Could not find post :(") }}
+	{{ macros.warning("could not find post :(") }}
 {% endif %}
 {% endblock %}
