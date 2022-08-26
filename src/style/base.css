@@ -48,8 +48,14 @@ Marker class for routing
 }
 
 .right-column img {
-	width: 40px;
-	height: 40px;
+	width: 28px;
+	height: 28px;
+}
+
+.right-column-icons {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
 }
 
 .separator {
