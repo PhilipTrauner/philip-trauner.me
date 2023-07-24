@@ -49,8 +49,8 @@ src/style/github.css: node_modules
 	cp $(realpath node_modules/pygments-github-css/github.css) src/style/
 
 docker-build: build
-	docker build -t philiptrauner/homepage-app:latest -f docker/app/Dockerfile .
-	docker build -t philiptrauner/homepage-web:latest -f docker/web/Dockerfile .
+	docker buildx build --platform linux/amd64 --progress=plain --tag philiptrauner/homepage-app:latest -f docker/app/Dockerfile .
+	docker buildx build --platform linux/amd64 --progress=plain --tag philiptrauner/homepage-web:latest -f docker/web/Dockerfile .
 
 docker-push: docker-build
 	docker push philiptrauner/homepage-app:latest
