@@ -1,4 +1,4 @@
-FROM python:3.9-alpine as build
+FROM python:3.11-alpine as build
 
 RUN apk --no-cache add git musl-dev libffi-dev openssl-dev gcc make g++
 
@@ -10,11 +10,10 @@ COPY pyproject.toml poetry.lock ./
 
 RUN set -eux; \
 	poetry config virtualenvs.in-project true; \
-	python3 -m poetry install --no-interaction --no-dev; \
-	find / -type d -name __pycache__ -prune -exec rm -rf '{}' \;; \
+	python3 -m poetry install --no-interaction --only main; \
 	rm -rf .venv/src;
 
-FROM python:3.9-alpine
+FROM python:3.11-alpine
 WORKDIR /app
 
 COPY --from=build .venv/ .venv/

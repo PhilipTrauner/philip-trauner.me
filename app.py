@@ -15,9 +15,6 @@ from bridges.blog.util import Url
 from bridges.github import GitHub
 from bridges.spotify import Spotify
 
-
-NAME = "philip-trauner.me"
-
 DEFAULT_PUBLIC_URL = "/static/public"
 DEFAULT_BLOG_STATIC_URL = "/static/blog/post"
 
@@ -52,11 +49,11 @@ with env.prefixed("PT_"):
     spotify_client_id = env.str("SPOTIFY_CLIENT_ID", None)
     spotify_client_secret = env.str("SPOTIFY_CLIENT_SECRET", None)
 
-app = Sanic(NAME)
+app = Sanic(name="app")
 
 if static_handler:
-    app.static(DEFAULT_PUBLIC_URL, "./public")
-    app.static(DEFAULT_BLOG_STATIC_URL, str(blog_path / "post"))
+    app.static(DEFAULT_PUBLIC_URL, "./public", name="public")
+    app.static(DEFAULT_BLOG_STATIC_URL, str(blog_path / "post"), name="blog_static")
 
 transformed_public_url = Url(public_url)
 transformed_blog_static_url = Url(blog_static_url)
@@ -100,9 +97,9 @@ blog = Blog(
 
 
 # Wildcard route
-@app.route("/")
+@app.route("/", name="root")
 # Necessitates `**kwargs` necessary
-@app.route("/<path>")
+@app.route("/<path>", name="home")
 async def home(_, **kwargs):
     return html(
         jinja_env.get_template("home.jinja").render(
@@ -115,7 +112,7 @@ async def home(_, **kwargs):
     )
 
 
-@app.route(f"{RSS_POST_ROUTE_PARTIAL}/<post>")
+@app.route(f"{RSS_POST_ROUTE_PARTIAL}/<post>", name="post")
 async def blog_post(_, post):
     post = blog.find_post(unquote(post))
 
@@ -133,7 +130,7 @@ async def blog_post(_, post):
     )
 
 
-@app.route("/blog/tag/<tag>")
+@app.route("/blog/tag/<tag>", name="tag")
 async def blog_tag(_, tag):
     posts = blog.find_posts_by_tag(unquote(tag))
 
@@ -147,12 +144,12 @@ async def blog_tag(_, tag):
     )
 
 
-@app.route(RSS_ROUTE)
+@app.route(RSS_ROUTE, name="rss")
 async def blog_rss(_):
     return text(blog.rss, headers={"Content-Type": "text/xml"})
 
 
 try:
-    app.run(host=address, port=port, debug=debug)
+    app.run(host=address, port=port, debug=debug, single_process=True)
 except KeyboardInterrupt:
     app.stop()
