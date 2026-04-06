@@ -2,20 +2,17 @@ from __future__ import annotations
 
 from pathlib import Path
 from threading import Lock
-from typing import Any
-from typing import Callable
+from typing import Any, Callable
 
 from result import Ok
 from rfeed import Feed
 from watchdog.events import FileSystemEventHandler as WatchdogFileSystemEventHandler
 from watchdog.observers import Observer
 
-from .util import info
-from .util import Url
-from .util import warning
 from bridges.blog.container import Post
-from bridges.blog.rss import build_feed
-from bridges.blog.rss import FeedMetadata
+from bridges.blog.rss import FeedMetadata, build_feed
+
+from .util import Url, info, warning
 
 
 class RwLock:
@@ -66,6 +63,7 @@ class Blog:
         rss_language: str,
         rss_base_url: Url,
         rss_url: Url,
+        observe: bool = True,
     ) -> None:
         self.base_path = base_path
         self.base_static_url = base_static_url
@@ -77,13 +75,6 @@ class Blog:
 
         self.post_path = base_path / "post"
 
-        self.observer = Observer()
-        self.observer.schedule(
-            Blog._FileSystemEventHandler(self.__refresh),
-            str(self.post_path.absolute()),
-            recursive=True,
-        )
-
         self._posts: list[Post] = []
         self._tags: dict[str, list[Post]] = {}
         self._rss: str = ""
@@ -92,7 +83,14 @@ class Blog:
 
         self.__refresh()
 
-        self.observer.start()
+        if observe:
+            self.observer = Observer()
+            self.observer.schedule(
+                Blog._FileSystemEventHandler(self.__observe),
+                str(self.post_path.absolute()),
+                recursive=True,
+            )
+            self.observer.start()
 
     def find_post(self, name: str) -> Post | None:
         post = None
@@ -154,9 +152,11 @@ class Blog:
             ),
         )
 
-    def __refresh(self) -> None:
+    def __observe(self) -> None:
         info("Refreshing!")
+        self.__refresh()
 
+    def __refresh(self) -> None:
         posts: list[Post] = []
         tags: dict[str, list[Post]] = {}
 

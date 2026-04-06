@@ -17,7 +17,7 @@
     "pygments-github-css": "PhilipTrauner/pygments-github-css"
   },
   "devDependencies": {
-    "generate-github-markdown-css": "^4.0.0",
+    "generate-github-markdown-css": "^6.5.1",
     "uglifycss": "^0.0.29"
   }
 }

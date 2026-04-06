@@ -33,13 +33,10 @@ $(DIST_DIR)/script/%.js: $(SRC_DIR)/script/%.js
 	@mkdir -p $(dir $@)
 	cp $< $@
 
-node_modules: package.json yarn.lock
-	yarn install
-
 dist:
 	mkdir -p dist
 
-src/style/github-markdown-processed.css: src/style/github-markdown-base.css
+src/style/github-markdown-processed.css: src/style/github-markdown-base.css utils/github_css_postprocess.py
 	/usr/bin/env python3 utils/github_css_postprocess.py
 
 src/style/github-markdown-base.css: node_modules
@@ -49,9 +46,7 @@ src/style/github.css: node_modules
 	cp $(realpath node_modules/pygments-github-css/github.css) src/style/
 
 docker-build: build
-	docker buildx build --platform linux/amd64 --progress=plain --tag philiptrauner/homepage-app:latest -f docker/app/Dockerfile .
-	docker buildx build --platform linux/amd64 --progress=plain --tag philiptrauner/homepage-web:latest -f docker/web/Dockerfile .
+	docker buildx build --platform linux/amd64,linux/arm64 --progress=plain --tag philiptrauner/homepage-app:latest -f docker/Dockerfile .
 
 docker-push: docker-build
 	docker push philiptrauner/homepage-app:latest
-	docker push philiptrauner/homepage-web:latest

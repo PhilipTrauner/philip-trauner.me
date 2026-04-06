@@ -1,8 +1,6 @@
-FROM python:3.11-alpine as build
+FROM python:3.14-alpine AS build
 
 RUN apk --no-cache add git musl-dev libffi-dev openssl-dev gcc make g++
-
-ENV CRYPTOGRAPHY_DONT_BUILD_RUST=1
 
 RUN pip3 --no-cache-dir install --upgrade pip poetry
 
@@ -13,15 +11,16 @@ RUN set -eux; \
 	python3 -m poetry install --no-interaction --only main; \
 	rm -rf .venv/src;
 
-FROM python:3.11-alpine
+FROM python:3.14-alpine
 WORKDIR /app
 
 COPY --from=build .venv/ .venv/
 
 COPY bridges ./bridges
-COPY docker/app ./docker/app
+COPY docker ./docker
 COPY dist ./dist
 COPY template ./template
+COPY public ./public
 COPY app.py ./
 
-CMD ["./docker/app/entrypoint.sh"]
+CMD ["./docker/entrypoint.sh"]

@@ -14,8 +14,6 @@
 	<ul>
 		<li><a href="/about">about</a></li>
 		<li><a href="/blog">blog</a></li>
-		<li><a href="/projects">projects</a></li>
-		<li><a href="/playlists">playlists</a></li>
 		<li><a href="/dot-dot-dot">...</a></li>
 	</ul>
 </header>
@@ -33,84 +31,6 @@
 		{{ macros.post_list(posts) }}
 	{% else %}
 		{{ macros.warning("could not load blog posts") }}
-	{% endif %}
-</div>
-<div id="projects" class="hidden fragment">
-	<svg class="hidden">
-		<symbol id="star">
-			<path fill-rule="evenodd" d="M14 6l-4.9-.64L7 1 4.9 5.36 0 6l3.6 3.26L2.67 14 7 11.67 11.33 14l-.93-4.74z"></path>
-		</symbol>
-	</svg>
-	<h2 id="products">products</h2>
-	<ul>
-		<li>
-			<div class="product-header">
-				<a href="https://quantile.arztpraxis.io/">
-					<img src="https://quantile.arztpraxis.io/content/app-icon.png" alt="Quantile App icon"/>
-				</a>
-				<div>
-					<a href="https://quantile.arztpraxis.io/">
-						<h2>Quantile</h2>
-					</a>
-					<p>beautiful workout widgets</p>
-				</div>
-			</div>
-			</li>
-		</ul>
-	<h2 id="repos">repos</h2>
-	{% if repos %}
-		<ul>
-			{% for repo in repos %}
-				<li>
-					<div id="repo-{{ repo.name }}" class="project-header">
-						<a href="{{ repo.url }}">
-							<h3>{{ repo.name }}</h3>
-						</a>
-						{% if repo.fork %}
-							<span class="project-svg project-fork">
-								<svg height="16" width="14">
-									<use xlink:href="#fork"></use>
-								</svg>
-							</span>
-						{% endif %}
-						<span class="project-svg project-stars">
-							<svg height="16" width="14">
-								<use xlink:href="#star"></use>
-							</svg>
-						</span>
-						<span class="project-star-count">{{ repo.stars }}</span>
-					</div>
-					{% if repo.archived %}
-						<span class="project-label">archived</span>
-					{% endif %}
-					{% if repo.lang != None %}
-						<span class="project-label">{{ repo.lang }}</span>
-					{% endif %}
-					<p>{{ repo.description }} </p>
-				</li>
-			{% endfor %}
-		</ul>
-	{% else %}
-		{{ macros.warning("could not load repositories") }}
-	{% endif %}
-</div>
-<div id="playlists" class="hidden fragment">
-	{% if playlists %}
-		<div class="playlist-container">
-			<div class="playlist-grid">
-				{% for playlist in playlists %}
-					<a href="{{ playlist.url }}">
-						<div>
-							<div class="playlist-cover" style="background-image: url({{ playlist.image }})">
-							</div>
-							{{ playlist.name }}
-						</div>
-					</a>
-				{% endfor %}
-			</div>
-		</div>
-	{% else %}
-		{{ macros.warning("could not load playlists") }}
 	{% endif %}
 </div>
 <div id="dot-dot-dot" class="hidden fragment">

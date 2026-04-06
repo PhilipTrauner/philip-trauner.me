@@ -11,7 +11,7 @@ function error {
 }
 
 if [ ! -d "blog" ]; then
-	error "Blog base directory does not exist ('/app/blog')" 1
+	error "blog base directory does not exist ('/app/blog')" 1
 fi
 
 /app/.venv/bin/python3 app.py

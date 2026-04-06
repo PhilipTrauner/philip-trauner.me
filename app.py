@@ -2,18 +2,12 @@ from pathlib import Path
 from urllib.parse import unquote
 
 from environs import Env
-from jinja2 import Environment
-from jinja2 import FileSystemLoader
+from jinja2 import Environment, FileSystemLoader
 from sanic import Sanic
-from sanic.response import html
-from sanic.response import text
-from spotipy import Spotify as Spotipy
-from spotipy.oauth2 import SpotifyClientCredentials as SCC
+from sanic.response import html, text
 
 from bridges.blog import Blog
 from bridges.blog.util import Url
-from bridges.github import GitHub
-from bridges.spotify import Spotify
 
 DEFAULT_PUBLIC_URL = "/static/public"
 DEFAULT_BLOG_STATIC_URL = "/static/blog/post"
@@ -30,30 +24,19 @@ def url_parser(value: str) -> Url:
 
 
 with env.prefixed("PT_"):
-    address = env.str("ADDRESS", "0.0.0.0")  # nosec
-    port = env.int("PORT", 5000)
+    address = env.str("ADDRESS", "127.0.0.1")
+    port = env.int("PORT", 3000)
     debug = env.bool("DEBUG", False)
-    static_handler = env.bool("ENABLE_STATIC_HANDLER", True)
-    blog_path = env.path("BLOG_PATH", "./blog")
+    blog_path = env.path("BLOG_PATH", Path("./blog"))
+    blog_observe = env.bool("BLOG_OBSERVE", True)
     public_url = env.furl("PUBLIC_URL", DEFAULT_PUBLIC_URL)
     blog_static_url = env.furl("BLOG_STATIC_URL", DEFAULT_BLOG_STATIC_URL)
     fq_url = env.furl("FQ_URL", f"http://localhost:{port}")
 
-    # Disabled by default because rate limit can be hit relatively easily
-    # during development
-    enable_github = env.bool("ENABLE_GITHUB", False)
-    github_user = env.str("GITHUB_USER", "PhilipTrauner")
-    # Disabled by default because credentials are necessary
-    enable_spotify = env.bool("ENABLE_SPOTIFY", False)
-    spotify_user = env.str("SPOTIFY_USER", "philip.trauner")
-    spotify_client_id = env.str("SPOTIFY_CLIENT_ID", None)
-    spotify_client_secret = env.str("SPOTIFY_CLIENT_SECRET", None)
-
 app = Sanic(name="app")
 
-if static_handler:
-    app.static(DEFAULT_PUBLIC_URL, "./public", name="public")
-    app.static(DEFAULT_BLOG_STATIC_URL, str(blog_path / "post"), name="blog_static")
+app.static(DEFAULT_PUBLIC_URL, "./public", name="public")
+app.static(DEFAULT_BLOG_STATIC_URL, str(blog_path / "post"), name="blog_static")
 
 transformed_public_url = Url(public_url)
 transformed_blog_static_url = Url(blog_static_url)
@@ -68,21 +51,6 @@ jinja_env = Environment(
     autoescape=True,
 )
 
-spotify = (
-    Spotify(
-        spotify_user,
-        Spotipy(
-            client_credentials_manager=SCC(
-                client_id=spotify_client_id, client_secret=spotify_client_secret
-            )
-        ),
-    )
-    if enable_spotify
-    else None
-)
-
-github = GitHub(github_user) if enable_github else None
-
 rss_url = fq_url / RSS_ROUTE
 
 blog = Blog(
@@ -93,6 +61,7 @@ blog = Blog(
     "en-US",
     fq_url / RSS_POST_ROUTE_PARTIAL,
     rss_url,
+    blog_observe,
 )
 
 
@@ -103,9 +72,7 @@ blog = Blog(
 async def home(_, **kwargs):
     return html(
         jinja_env.get_template("home.jinja").render(
-            repos=github.repos if github is not None else [],
             public_url=transformed_public_url,
-            playlists=spotify.playlists if spotify is not None else [],
             posts=blog.posts,
             rss_url=rss_url,
         )
